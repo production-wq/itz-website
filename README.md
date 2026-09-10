@@ -179,18 +179,20 @@ to their nested canonical in `next.config.mjs`.
 node scripts/import-wordpress.mjs ../itzdigital.WordPress.2026-08-18.xml
 ```
 
-595 published posts → `src/content/posts/*.json` (6.6 MB of text). Post images
-are **not** copied into the repo — their URLs are rewritten to
-`NEXT_PUBLIC_MEDIA_BASE` (defaults to the live WordPress uploads host), which is
-why `public/` is 520 KB rather than 1.4 GB.
+595 published posts → `src/content/posts/*.json` (6.6 MB of text).
 
-```bash
-# .env.local — point at a CDN once media is moved
-NEXT_PUBLIC_MEDIA_BASE=https://cdn.itzdigital.co/uploads
-```
+The 435 inline post images have since been vendored into the repo at
+`public/images/blog/<post-slug>.webp` (~33 MB), copied from the old WordPress
+`wp-content/uploads` tree and renamed to match each post's slug. The `<img src>`
+in each post's HTML points straight at `/images/blog/…` — no external host, no
+env var. `scripts/migrate-post-images.mjs` performs the copy + rewrite and is
+idempotent.
 
-Add the host to `images.remotePatterns` in `next.config.mjs` if you want
-`next/image` to optimise post images.
+`NEXT_PUBLIC_MEDIA_BASE` (default `https://itzdigital.co/wp-content/uploads`) is
+still honoured by `getPost()` for any *future* import that leaves a
+`${MEDIA_BASE}` token in its content; none of the current posts use it. Point it
+at a CDN and add the host to `images.remotePatterns` in `next.config.mjs` if you
+later serve post media off-repo.
 
 ---
 

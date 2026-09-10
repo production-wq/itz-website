@@ -42,6 +42,9 @@ export default function LocationsPage() {
         title="Local marketing, in your market"
         intro="Local search results differ block by block, not just city by city. These are the metro markets where we currently run active SEO and paid ad programs."
         crumbs={[{ label: 'Locations' }]}
+        image="/images/headers/locations.webp"
+        imageAlt="A US map with pins marking the metro markets ITZ Digital serves"
+        imagePriority
       />
 
       <Section>

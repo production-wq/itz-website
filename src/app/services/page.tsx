@@ -47,6 +47,9 @@ export default function ServicesPage() {
         title="Every channel that puts you in front of local searches"
         intro="Most clients don't need all of it at once. SEO is usually the foundation, with paid ads and a rebuilt site layered in once an audit shows where the gaps actually are."
         crumbs={[{ label: 'Services' }]}
+        image="/images/headers/services.webp"
+        imageAlt="The marketing channels ITZ Digital runs, shown as connected dashboards"
+        imagePriority
       >
         <Button href="/contact" variant="onDark" size="lg">
           Get a Free Audit

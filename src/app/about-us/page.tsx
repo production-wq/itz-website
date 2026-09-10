@@ -78,6 +78,9 @@ export default function AboutPage() {
         title="We exist to empower businesses as a strategic consulting partner"
         intro="We achieve this by delivering clear, insightful guidance on digital marketing strategies and products that drive online presence and measurable growth."
         crumbs={[{ label: 'About Us' }]}
+        image="/images/headers/about.webp"
+        imageAlt="A strategic partner guiding a local business toward measurable growth"
+        imagePriority
       >
         <Button href="/contact" variant="onDark" size="lg">
           Work With Us

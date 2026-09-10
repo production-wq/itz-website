@@ -29,6 +29,9 @@ export default function PricingPage() {
         title="Straightforward pricing, by service and program"
         intro="Every program is scoped to your market and competition, so these are typical ranges, not exact quotes. Reach out for a number specific to your business — the audit is free."
         crumbs={[{ label: 'Pricing' }]}
+        image="/images/headers/pricing.webp"
+        imageAlt="Service pricing shown as clean, labelled program cards"
+        imagePriority
       >
         <Button href="/contact" variant="onDark" size="lg">
           Get a Free Quote

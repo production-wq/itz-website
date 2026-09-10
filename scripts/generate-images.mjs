@@ -18,24 +18,12 @@ import { writeFile, mkdir, access } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import sharp from 'sharp';
 import { GoogleGenAI } from '@google/genai';
+
+import { generateImage, resolveKey } from './lib/image-gen.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT_DIR = join(ROOT, 'public', 'images');
-const MODEL = 'gemini-2.5-flash-image';
-
-/* Appended to every prompt so the whole set reads as one system. */
-const STYLE =
-  ' — flat vector editorial illustration on a plain solid pure-white background (#FFFFFF), ' +
-  'the white fills the whole frame edge to edge. Absolutely no checkerboard pattern, no grey ' +
-  'squares, no transparency grid, no drop shadow behind the artwork. Deep navy #00386C and ' +
-  'bright blue #0974E4 as the primary colours with warm amber #FBBB5B used sparingly for ' +
-  'accents, soft pale-blue circles and fine dot-grid textures in the negative space, clean ' +
-  'minimal geometry, rounded shapes, subtle depth. Any people are simplified and stylised ' +
-  'with minimal facial detail, shown small within the composition. No text, no lettering, no ' +
-  'logos. Generous white space, balanced composition, professional and modern. Consistent ' +
-  'line weight and colour palette across the set.';
 
 /** @type {{file:string, aspect:string, prompt:string}[]} */
 const MANIFEST = [
@@ -374,9 +362,71 @@ const MANIFEST = [
       'graduation cap, car) on the left, connected by converging lines into a single central ' +
       'upward-trending strategy chart on the right.',
   },
-];
 
-const WIDTHS = { '4:3': 1400, '1:1': 1200, '16:9': 1600, '3:2': 1500 };
+  // ── Page headers (round 7) — sit framed on the right of a dark PageHero ────
+  {
+    file: 'headers/about.webp',
+    aspect: '4:3',
+    prompt:
+      'A strategic marketing consultant and a small-business owner side by side, both looking ' +
+      'at a shared plan on a large screen that shows a clear upward growth path; a compass ' +
+      'motif and a small handshake nearby, conveying guidance and partnership.',
+  },
+  {
+    file: 'headers/who-we-serve.webp',
+    aspect: '4:3',
+    prompt:
+      'Five industry emblems — a legal scale, a medical cross, a house with a key, a ' +
+      'graduation cap, a car — arranged around a central shared "method" hub, each linked to ' +
+      'the hub by its own distinct coloured line.',
+  },
+  {
+    file: 'headers/locations.webp',
+    aspect: '4:3',
+    prompt:
+      'A stylised United States map with glowing location pins on several metro markets, and ' +
+      'a magnifying glass over one city revealing a local map-pack of three business results.',
+  },
+  {
+    file: 'headers/services.webp',
+    aspect: '4:3',
+    prompt:
+      'Connected marketing-channel tiles — a search bar, a highlighted paid-ad slot, a ' +
+      'browser window, a review star, a video play button — all feeding into one central ' +
+      'performance dashboard with an upward chart.',
+  },
+  {
+    file: 'headers/case-studies.webp',
+    aspect: '4:3',
+    prompt:
+      'A before-and-after split inside a case-study card: a flat, stalled line on the left ' +
+      'and a compounding upward curve on the right, with small labelled milestone markers ' +
+      'along the curve.',
+  },
+  {
+    file: 'headers/pricing.webp',
+    aspect: '4:3',
+    prompt:
+      'Three clean pricing cards of increasing height, each with a price tag and a short ' +
+      'feature list, the middle card highlighted amber with a small star; a calculator and a ' +
+      'magnifier resting beside them.',
+  },
+  {
+    file: 'headers/contact.webp',
+    aspect: '4:3',
+    prompt:
+      'A speech bubble containing a short contact form, next to a ringing phone, a map pin ' +
+      'and a calendar with one slot booked in amber — the welcoming start of a conversation.',
+  },
+  {
+    file: 'headers/resources.webp',
+    aspect: '4:3',
+    prompt:
+      'An open guidebook with tabbed sections, surrounded by floating how-to cards — a ' +
+      'checklist, a search result, a small bar chart, a lightbulb — suggesting a library of ' +
+      'practical marketing guides.',
+  },
+];
 
 function parseArgs(argv) {
   const args = { force: false, list: false, only: null, apiKey: null };
@@ -399,38 +449,6 @@ async function exists(p) {
   }
 }
 
-async function generateOne(ai, entry, attempt = 1) {
-  const res = await ai.models.generateContent({
-    model: MODEL,
-    contents: entry.prompt + STYLE,
-    config: {
-      responseModalities: ['IMAGE'],
-      imageConfig: { aspectRatio: entry.aspect },
-    },
-  });
-
-  const parts = res?.candidates?.[0]?.content?.parts ?? [];
-  const img = parts.find((p) => p.inlineData?.data);
-  if (!img) {
-    const text = parts.find((p) => p.text)?.text ?? 'no image in response';
-    if (attempt < 3) {
-      console.warn(`  retry ${attempt} (${text.slice(0, 80)})`);
-      return generateOne(ai, entry, attempt + 1);
-    }
-    throw new Error(`no image after ${attempt} attempts: ${text.slice(0, 160)}`);
-  }
-
-  const png = Buffer.from(img.inlineData.data, 'base64');
-  const width = WIDTHS[entry.aspect] ?? 1400;
-  // Flatten onto white so any stray alpha the model returns can't render as a
-  // grey checkerboard on the page. The art is designed to sit on white anyway.
-  return sharp(png)
-    .flatten({ background: '#ffffff' })
-    .resize({ width, withoutEnlargement: true })
-    .webp({ quality: 82, effort: 5 })
-    .toBuffer();
-}
-
 async function main() {
   const args = parseArgs(process.argv);
 
@@ -443,13 +461,7 @@ async function main() {
     return;
   }
 
-  const key = args.apiKey || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-  if (!key) {
-    console.error('Missing key: pass --api-key <KEY> or set GEMINI_API_KEY');
-    process.exit(1);
-  }
-
-  const ai = new GoogleGenAI({ apiKey: key });
+  const ai = new GoogleGenAI({ apiKey: resolveKey(args.apiKey) });
   let made = 0;
   let skipped = 0;
   const failures = [];
@@ -463,7 +475,7 @@ async function main() {
     }
     process.stdout.write(`gen   ${entry.file} … `);
     try {
-      const webp = await generateOne(ai, entry);
+      const webp = await generateImage(ai, { prompt: entry.prompt, aspect: entry.aspect });
       await mkdir(dirname(outPath), { recursive: true });
       await writeFile(outPath, webp);
       made += 1;

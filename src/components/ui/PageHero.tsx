@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import type { ReactNode } from 'react';
@@ -10,12 +11,19 @@ export function PageHero({
   intro,
   crumbs = [],
   children,
+  image,
+  imageAlt = '',
+  imagePriority = false,
 }: {
   eyebrow?: string;
   title: string;
   intro?: string;
   crumbs?: Crumb[];
   children?: ReactNode;
+  /** Optional framed illustration on the right. Omit for the centred, text-only header. */
+  image?: string;
+  imageAlt?: string;
+  imagePriority?: boolean;
 }) {
   return (
     <section className="on-dark mesh mesh-dark relative overflow-hidden bg-gradient-navy pb-20 pt-10 lg:pb-28 lg:pt-14">
@@ -62,20 +70,63 @@ export function PageHero({
           </nav>
         ) : null}
 
-        <div className="max-w-3xl" data-reveal="left">
-          {eyebrow ? (
-            <p className="mb-4 inline-flex items-center gap-2 rounded-pill glass-dark px-4 py-1.5 font-script text-xl font-bold leading-none text-amber-300">
-              {eyebrow}
-            </p>
-          ) : null}
+        {image ? (
+          <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-8 xl:gap-12">
+            <div className="min-w-0 lg:col-span-6" data-reveal="left">
+              <HeroCopy eyebrow={eyebrow} title={title} intro={intro}>
+                {children}
+              </HeroCopy>
+            </div>
 
-          <h1 className="text-display-xl text-white">{title}</h1>
-
-          {intro ? <p className="mt-6 max-w-prose text-body-xl text-navy-100">{intro}</p> : null}
-
-          {children ? <div className="mt-9">{children}</div> : null}
-        </div>
+            <div className="min-w-0 lg:col-span-6" data-reveal="right">
+              <div className="relative aspect-[16/9] overflow-hidden rounded-4xl bg-navy-50 shadow-card-hover ring-1 ring-white/15 sm:aspect-[4/3]">
+                <Image
+                  src={image}
+                  alt={imageAlt}
+                  fill
+                  priority={imagePriority}
+                  sizes="(min-width: 1024px) 46vw, 100vw"
+                  className="object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="max-w-3xl" data-reveal="left">
+            <HeroCopy eyebrow={eyebrow} title={title} intro={intro}>
+              {children}
+            </HeroCopy>
+          </div>
+        )}
       </div>
     </section>
+  );
+}
+
+function HeroCopy({
+  eyebrow,
+  title,
+  intro,
+  children,
+}: {
+  eyebrow?: string;
+  title: string;
+  intro?: string;
+  children?: ReactNode;
+}) {
+  return (
+    <>
+      {eyebrow ? (
+        <p className="mb-4 inline-flex items-center gap-2 rounded-pill glass-dark px-4 py-1.5 font-script text-xl font-bold leading-none text-amber-300">
+          {eyebrow}
+        </p>
+      ) : null}
+
+      <h1 className="text-display-xl text-white">{title}</h1>
+
+      {intro ? <p className="mt-6 max-w-prose text-body-xl text-navy-100">{intro}</p> : null}
+
+      {children ? <div className="mt-9">{children}</div> : null}
+    </>
   );
 }

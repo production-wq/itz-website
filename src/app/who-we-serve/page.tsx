@@ -27,6 +27,9 @@ export default function WhoWeServePage() {
         title="Five industries, five distinct strategies"
         intro="A personal injury firm and a med spa both want more local calls, but almost nothing about how they get them is the same. These are the verticals we know well enough to be useful in."
         crumbs={[{ label: 'Who We Serve' }]}
+        image="/images/headers/who-we-serve.webp"
+        imageAlt="Distinct marketing strategies for each industry we serve"
+        imagePriority
       />
 
       <Section>

@@ -4,7 +4,14 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import index from '@/content/posts-index.json';
+import postImages from '@/content/post-images.json';
 import type { Faq } from './geo/types';
+
+/**
+ * slug → featured image. Kept out of the post JSON and the generated index so a
+ * re-import can't clobber it — see `scripts/derive-post-images.mjs`.
+ */
+const heroImages = postImages as Record<string, { image: string; alt: string }>;
 
 export type PostSummary = {
   slug: string;
@@ -18,7 +25,18 @@ export type PostSummary = {
   readingTime: number;
   /** Present on generated posts; the WordPress-imported posts omit it. */
   faqs?: Faq[];
+  /** Featured image, merged in from `post-images.json`. */
+  heroImage?: string;
+  heroImageAlt?: string;
 };
+
+function withHeroImage<T extends { slug: string }>(post: T): T & {
+  heroImage?: string;
+  heroImageAlt?: string;
+} {
+  const hero = heroImages[post.slug];
+  return hero ? { ...post, heroImage: hero.image, heroImageAlt: hero.alt } : post;
+}
 
 export type Post = PostSummary & { content: string };
 
@@ -28,7 +46,7 @@ const MEDIA_BASE =
 
 const POSTS_DIR = join(process.cwd(), 'src/content/posts');
 
-export const allPosts = index as PostSummary[];
+export const allPosts = (index as PostSummary[]).map(withHeroImage);
 
 export const categories = [...new Set(allPosts.flatMap((p) => p.categories))].sort();
 
@@ -38,7 +56,10 @@ export function getPost(slug: string): Post | null {
     const post = JSON.parse(raw) as Post;
     // The importer leaves a `${MEDIA_BASE}` token so the host is a deploy-time
     // decision rather than something baked into 595 files.
-    return { ...post, content: post.content.replaceAll('${MEDIA_BASE}', MEDIA_BASE) };
+    return withHeroImage({
+      ...post,
+      content: post.content.replaceAll('${MEDIA_BASE}', MEDIA_BASE),
+    });
   } catch {
     return null;
   }

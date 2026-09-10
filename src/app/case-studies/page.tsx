@@ -26,6 +26,9 @@ export default function CaseStudiesPage() {
         title="What the work actually produced"
         intro="A cross-section of the campaigns we have run — different industries, different budgets, different definitions of a good outcome."
         crumbs={[{ label: 'Case Studies' }]}
+        image="/images/headers/case-studies.webp"
+        imageAlt="Campaign performance climbing from a slow start to compounding growth"
+        imagePriority
       />
 
       <Section>

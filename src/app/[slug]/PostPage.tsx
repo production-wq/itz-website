@@ -33,6 +33,7 @@ export function postMetadata(slug: string): Metadata {
       description,
       url: `/${post.slug}`,
       publishedTime: post.date ?? undefined,
+      images: post.heroImage ? [{ url: post.heroImage }] : undefined,
     },
   };
 }
@@ -51,6 +52,9 @@ export function PostPage({ slug }: { slug: string }) {
         eyebrow={post.categories[0]}
         title={post.title}
         crumbs={[{ label: 'Blog', href: '/blog' }, { label: post.title }]}
+        image={post.heroImage}
+        imageAlt={post.heroImageAlt ?? ''}
+        imagePriority
       >
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-navy-200">
           {post.date ? <time dateTime={post.date}>{formatDate(post.date)}</time> : null}

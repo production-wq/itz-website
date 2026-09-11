@@ -51,16 +51,22 @@ export default async function AdminDashboard() {
             </p>
           </Link>
 
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+          <a
+            href="https://itz-digital.sanity.studio/"
+            target="_blank"
+            rel="noreferrer"
+            className="block rounded-2xl border border-white/10 bg-white/5 p-5 transition-colors hover:border-blue-400/40 hover:bg-white/10"
+          >
             <PenLine className="h-5 w-5 text-blue-300" aria-hidden="true" />
-            <p className="mt-2 font-semibold text-white">Write it yourself, in Sanity</p>
-            <p className="mt-1 text-sm text-navy-300">
-              Prefer writing the whole thing by hand? Use the{' '}
-              <span className="font-medium text-white">ITZ Digital Studio</span> (a separate app —
-              ask whoever set this up for its link and your login). Publishing there lands the post
-              in this same review queue.
+            <p className="mt-2 font-semibold text-white">
+              Write it yourself, in Sanity <ExternalLink className="inline h-3.5 w-3.5" aria-hidden="true" />
             </p>
-          </div>
+            <p className="mt-1 text-sm text-navy-300">
+              Prefer writing the whole thing by hand? Open the ITZ Digital Studio and log in (ask
+              to be added as a project member first). Publishing there lands the post in this same
+              review queue.
+            </p>
+          </a>
         </div>
       </section>
 

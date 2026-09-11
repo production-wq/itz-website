@@ -646,12 +646,17 @@ prompt: `industries/home-services*` and `services/{review-management,creative}*`
    **GitHub Actions repository secrets** (different from the same-named Vercel
    var in §7 — that copy runs the CLI locally, this one runs the workflow that
    actually writes content). `INDEXNOW_KEY` is optional.
-8. **Sanity Studio — scaffolded and schema'd, needs project access + the
-   GitHub Actions secrets from §13.** The Studio itself
-   (`../studio-itz-digital`) is linked to project `yu3obcx8` already; add
-   anyone who'll write there as a project member in sanity.io/manage. The
-   webhook for instant sync is optional — the 30-minute schedule in
-   `sanity-sync.yml` covers it either way.
+8. **Sanity Studio — built, deployed to <https://itz-digital.sanity.studio/>,
+   needs project access + the GitHub Actions secrets from §13.** Add anyone
+   who'll write there as a project member in sanity.io/manage. The webhook
+   for instant sync is optional — the 30-minute schedule in `sanity-sync.yml`
+   covers it either way.
+9. **"Generate with AI" Studio button — built and proven end-to-end, needs
+   three Vercel env vars before it'll respond live.** See §14:
+   `STUDIO_AI_SECRET`, and — easy to miss — `ANTHROPIC_API_KEY` and/or
+   `GEMINI_API_KEY` as **Vercel** env vars, not just the GitHub Actions
+   secrets §12/§13 already asked for. Until those are set, the button in the
+   Studio shows a clear "not configured" error rather than failing silently.
 
 ## 12. Content Studio — the `/admin` daily workflow
 
@@ -831,12 +836,12 @@ declined when this was set up. Keeping it standalone also means:
 
 ### Setup (one time)
 
-1. **The Studio itself** already exists at `../studio-itz-digital`, linked to
-   Sanity project `yu3obcx8` / dataset `production`. Whoever will write posts
-   needs their own Sanity login added as a project member (sanity.io/manage →
-   project → Members), then runs `npm install && npm run dev` inside that
-   folder (or you deploy it with `npx sanity deploy` for a hosted URL — see
-   its own README).
+1. **The Studio itself** already exists and is deployed at
+   **<https://itz-digital.sanity.studio/>** (source in `../studio-itz-digital`,
+   project `yu3obcx8` / dataset `production`). Whoever will write posts needs
+   their own Sanity login added as a project member (sanity.io/manage →
+   project → Members) — that's the only setup they need; they just open the
+   URL and log in.
 2. **GitHub Actions secrets** (repo → Settings → Secrets and variables →
    Actions): `SANITY_PROJECT_ID` = `yu3obcx8`, `SANITY_DATASET` = `production`.
    `SANITY_API_TOKEN` only if the dataset's visibility is set to private
@@ -860,3 +865,82 @@ declined when this was set up. Keeping it standalone also means:
 A post written in the Studio without its own featured image gets one the
 same way a sheet-generated post does — `derive-post-images.mjs` +
 `generate-blog-images.mjs`, already a step in the workflow above.
+
+## 14. "Generate with AI" — writing a draft from inside the Studio
+
+§13 covers writing a post by hand in Sanity. This is the other option on the
+same document: open **Blog post → Create new**, click **Generate with AI** in
+the action row, type a topic, and get a full draft — title, excerpt,
+categories, tags, SEO fields, body, FAQs, and (optionally) a featured image —
+filled into the draft for you to read, edit and publish. It never publishes
+on its own.
+
+```
+writer clicks "Generate with AI", types a topic, hits Generate
+        │
+        ▼  (Studio → itzdigital.co, cross-origin — a shared secret baked
+        │   into the Studio's build is the only credential involved)
+POST https://itzdigital.co/api/studio/generate
+        │  same prompt, same house voice, same validation as §7/§12's
+        │  scripts/lib/content-gen.mjs — Claude or Gemini, writer's choice
+        │  optionally also calls Gemini's image model (scripts/lib/image-gen.mjs)
+        ▼
+returns a finished draft as JSON, body already converted from the model's
+HTML output to Portable Text (src/lib/admin/html-to-portable-text.ts)
+        │
+        ▼  (all client-side from here, using the Studio's own
+        │   already-authenticated Sanity session)
+the dialog patches the CURRENT DRAFT with the result, uploads the image (if
+any) straight into Sanity's asset store, and sets it as heroImage
+        │
+        ▼
+writer reads it, edits anything, clicks Publish (a separate, deliberate
+click) — from here it's exactly §13's flow: synced, PR'd, reviewed, merged
+```
+
+### Why the model call can't happen inside the Studio itself
+
+The Studio is a static single-page app with no server of its own — anything
+that needs an API key has to live somewhere else. `/api/studio/generate` in
+this repo is that somewhere: it holds the actual Claude/Gemini keys, the
+Studio never sees them, only the finished draft. Auth between the two is a
+**shared secret**, not the `/admin` Basic Auth from §12 — a browser session in
+the Studio can't supply that, and a Sanity Studio document action has no
+equivalent of a login prompt to ask for one. The secret's job is narrow: stop
+this endpoint from being hit by anything that isn't going through the Studio
+at all. The actual access control is Sanity's own login — only a signed-in
+project member ever sees the button in the first place.
+
+### Setup (one time)
+
+1. **Vercel env vars** (itz-website project): `STUDIO_AI_SECRET` (any random
+   string), plus `ANTHROPIC_API_KEY` and/or `GEMINI_API_KEY` — **these need
+   to be set here too**, not only as the GitHub Actions secrets §12/§13 asked
+   for. Same variable names, two different places; the Actions copy doesn't
+   cover a route running live on Vercel.
+2. **Studio env** (`../studio-itz-digital/.env` — see its own `.env.example`):
+   `SANITY_STUDIO_BACKEND_URL=https://itzdigital.co` and
+   `SANITY_STUDIO_AI_SECRET=` — the *same* value as `STUDIO_AI_SECRET` above.
+   Vite bakes these into the built bundle, so changing either means
+   `npx sanity deploy` again before it takes effect.
+
+### Files
+
+| File | Role |
+| --- | --- |
+| `scripts/lib/content-gen.mjs` | The prompts + provider abstraction, extracted out of `generate-daily-content.mjs` so the CLI script and this button generate in exactly the same voice — one source of truth, not two prompts drifting apart |
+| `src/lib/admin/html-to-portable-text.ts` | Converts the model's constrained HTML output into Sanity's Portable Text block array — the exact inverse of `portableTextToHtml()` in `scripts/sync-sanity-posts.mjs` |
+| `src/app/api/studio/generate/route.ts` | The endpoint — shared-secret auth, CORS for the Studio's origin, calls the provider, validates, converts, optionally generates an image |
+| `../studio-itz-digital/actions/generateWithAI.tsx` | The document action + dialog, registered for `post` documents in `sanity.config.ts` |
+
+### A bug this caught
+
+Building this surfaced a real, pre-existing issue in `postPrompt()`: it asked
+the model to pick categories from `services.ts`'s full display names (e.g.
+"Search Engine Optimization"), not the short taxonomy the site actually
+filters `/blog` by (e.g. "SEO") — a post generated that way would silently
+never show up under any category filter. Fixed by giving `postPrompt()` its
+own `BLOG_CATEGORIES` list (`scripts/lib/content-gen.mjs`) matching what's
+actually used across the existing posts, instead of deriving it from
+services. This affects §7/§12's pipeline too, not just this button — same
+shared prompt.

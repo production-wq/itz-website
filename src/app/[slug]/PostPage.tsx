@@ -9,7 +9,7 @@ import { JsonLd } from '@/components/ui/JsonLd';
 import { PageHero } from '@/components/ui/PageHero';
 import { PostCard } from '@/components/ui/PostCard';
 import { Section, SectionHeading } from '@/components/ui/Section';
-import { allPosts, formatDate, getPost, relatedPosts } from '@/lib/posts';
+import { allPosts, formatDate, getPost, relatedPosts, type Post } from '@/lib/posts';
 import { buildArticleGraph } from '@/lib/schema';
 
 /*
@@ -38,8 +38,14 @@ export function postMetadata(slug: string): Metadata {
   };
 }
 
-export function PostPage({ slug }: { slug: string }) {
-  const post = getPost(slug);
+/**
+ * `post` lets a caller supply an already-loaded post instead of reading one
+ * off disk by slug — used by the /admin/review draft preview, which fetches
+ * an unmerged post JSON straight from a pull request's branch via the GitHub
+ * API rather than from this build's filesystem.
+ */
+export function PostPage({ slug, post: providedPost }: { slug: string; post?: Post }) {
+  const post = providedPost ?? getPost(slug);
   if (!post) notFound();
 
   const related = relatedPosts(post);

@@ -1,0 +1,120 @@
+name: Daily content generation
+
+# Two ways in:
+#   1. workflow_dispatch — triggered by the /admin web app the moment a
+#      colleague uploads a sheet. This is the normal path.
+#   2. schedule — an optional standing cadence that consumes a queue file
+#      committed at content-queue/queue.csv, if one exists. No-ops otherwise.
+#      Delete the `schedule:` block below if you only want on-demand runs.
+#
+# Either way this workflow: generates posts/geo pages with the chosen AI
+# provider, generates a featured image for any new post, runs a full build as
+# a validation gate, and opens a PR labeled `automated-content` for human
+# review at /admin/review. Nothing here ever pushes straight to the deploy
+# branch — merging the PR is the publish step.
+
+on:
+  workflow_dispatch:
+    inputs:
+      queue_path:
+        description: "Path in this repo to the content queue (.csv or .xlsx)"
+        required: true
+        default: "content-queue/queue.csv"
+      provider:
+        description: "AI provider"
+        type: choice
+        options: [claude, gemini]
+        default: claude
+      limit:
+        description: "Max rows to process this run"
+        default: "10"
+  # Cron is UTC and does not observe DST — adjust the hour twice a year, or
+  # remove this trigger and rely on workflow_dispatch only.
+  schedule:
+    - cron: "0 13 * * 1-5" # ~07:00 America/Denver on weekdays (MST, UTC-6)
+
+permissions:
+  contents: write
+  pull-requests: write
+
+# Only one batch in flight at a time — two runs writing posts-index.json
+# concurrently would race.
+concurrency:
+  group: daily-content
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Resolve queue file
+        id: queue
+        run: |
+          FILE="${{ inputs.queue_path || 'content-queue/queue.csv' }}"
+          if [ ! -f "$FILE" ]; then
+            echo "No queue file at $FILE — nothing to generate this run."
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=true" >> "$GITHUB_OUTPUT"
+            echo "path=$FILE" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Generate posts & pages
+        if: steps.queue.outputs.found == 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          node scripts/generate-daily-content.mjs \
+            --input "${{ steps.queue.outputs.path }}" \
+            --provider "${{ inputs.provider || 'claude' }}" \
+            --limit "${{ inputs.limit || '10' }}"
+
+      - name: Generate featured images for new posts
+        if: steps.queue.outputs.found == 'true'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          node scripts/derive-post-images.mjs
+          node scripts/generate-blog-images.mjs
+
+      - name: Validate with a full build
+        if: steps.queue.outputs.found == 'true'
+        run: npm run build
+
+      - name: Archive the processed queue file
+        if: steps.queue.outputs.found == 'true'
+        run: |
+          mkdir -p content-queue/processed
+          git mv "${{ steps.queue.outputs.path }}" \
+            "content-queue/processed/$(date +%Y-%m-%d-%H%M)-$(basename "${{ steps.queue.outputs.path }}")"
+
+      - name: Open pull request for review
+        if: steps.queue.outputs.found == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "Content: generate from ${{ steps.queue.outputs.path }}"
+          branch: content/auto-${{ github.run_number }}
+          title: "New content for review (${{ inputs.provider || 'claude' }}) — ${{ steps.queue.outputs.path }}"
+          body: |
+            Generated automatically by **Daily content generation**, run from
+            `${{ steps.queue.outputs.path }}`.
+
+            - **Provider:** ${{ inputs.provider || 'claude' }}
+            - **Run log:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            Review each item at `/admin/review` on the site — it renders every new
+            post exactly as it will look live. Merging this PR (or clicking
+            **Approve & publish** there) deploys it.
+          labels: automated-content
+          base: ${{ github.ref_name }}
+          delete-branch: true

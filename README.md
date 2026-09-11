@@ -637,6 +637,145 @@ prompt: `industries/home-services*` and `services/{review-management,creative}*`
    photo, for instance. Swap these for real campaign assets when available.
    A build-time guard in `lib/case-studies.ts` fails if two studies share an
    image (that shipped once).
-5. **Social URLs** in `src/lib/site.ts` are assumed patterns — confirm them.
-6. **Post images.** Currently served from the legacy WordPress host. Move to a
-   CDN and update `NEXT_PUBLIC_MEDIA_BASE`.
+6. **Social URLs** in `src/lib/site.ts` are assumed patterns — confirm them.
+7. **Content Studio (`/admin`) — built, needs three things set before your
+   colleague can use it.** See §12 for the full picture; in short:
+   `ADMIN_USERNAME`/`ADMIN_PASSWORD` (Vercel env vars — gates `/admin` itself),
+   `GITHUB_API_TOKEN`/`GITHUB_REPO` (Vercel env vars — lets the deployed app
+   read/write this repo), and `ANTHROPIC_API_KEY` or `GEMINI_API_KEY` as
+   **GitHub Actions repository secrets** (different from the same-named Vercel
+   var in §7 — that copy runs the CLI locally, this one runs the workflow that
+   actually writes content). `INDEXNOW_KEY` is optional.
+
+## 12. Content Studio — the `/admin` daily workflow
+
+A web front end for §7's script, so a non-technical colleague can create
+posts and location pages without touching a terminal, a spreadsheet column
+name, or an API key. They fill in a short list or upload a sheet; everything
+else — the writing, the validation, the featured image, the sitemap entry —
+happens on its own. Nothing goes live until someone clicks **Approve &
+publish**.
+
+```
+colleague fills in /admin/new
+        │  (upload a .csv/.xlsx, or the built-in row table)
+        ▼
+POST /api/admin/generate            commits the sheet to
+        │                           content-queue/incoming/, then
+        ▼                           dispatches the workflow below
+.github/workflows/daily-content.yml
+        │  runs scripts/generate-daily-content.mjs (§7, unchanged)
+        │  runs scripts/derive-post-images.mjs + generate-blog-images.mjs
+        │  runs `npm run build` as a validation gate — a bad row fails here,
+        │    before anything is offered for review
+        ▼
+opens a PR, labeled `automated-content`
+        │
+        ▼
+colleague reviews at /admin/review — every post renders through the exact
+same PostPage component the live site uses, fed from the PR branch; geo
+pages show a structured summary (headline, stats, FAQs)
+        │
+        ▼  Approve & publish                      Send back
+        ▼  (Server Action → merges the PR)         (closes the PR, optional reason)
+Vercel deploys the merge → live in ~2 minutes
+        │
+        ▼
+.github/workflows/indexnow-ping.yml → pings Bing/Yandex for the new URLs.
+sitemap.xml already includes them (src/app/sitemap.ts reads posts-index.json
+and service-locations.json at build time — nothing to do). For Google, the
+/admin dashboard links each recent post straight to Search Console's
+"Request indexing" — there is no public push API for ordinary pages.
+```
+
+### What "posts and pages" means here
+
+The pipeline only knows the two content shapes §7 already validates:
+
+| Row type | Produces | Lives at |
+| --- | --- | --- |
+| **Blog post** | `src/content/posts/<slug>.json` + a `posts-index.json` entry | `/<slug>` |
+| **Location page** | a record merged into `src/lib/geo/service-locations.json` | `/services/<service>/<city>` |
+
+There is no generic third "page" type — every other page on the site (each
+service, each industry, `/pricing`, `/locations`, …) is a hand-built template
+reading from its own `src/lib/*.ts` file, not something a sheet of rows can
+safely generate. If a genuinely new page type is needed later, it needs its
+own template and schema, the same way Home Services or Review Management were
+added — see §10.
+
+### Setup (one time)
+
+1. **A GitHub token for the deployed app.** Create a **fine-grained Personal
+   Access Token** at <https://github.com/settings/tokens> scoped to just this
+   repository, with **Contents**, **Pull requests** and **Actions** set to
+   *Read and write*. In Vercel → Settings → Environment Variables, add:
+   - `GITHUB_API_TOKEN` — the token
+   - `GITHUB_REPO` — `production-wq/itz-website`
+   - `GITHUB_BASE_BRANCH` — whatever branch is actually set as **Production**
+     in Vercel right now (this repo is currently on `redesign-refresh` —
+     confirm that's still current before relying on this)
+
+   This is a *different* credential from the `GITHUB_TOKEN` GitHub injects
+   automatically inside an Actions run — that one needs no setup.
+
+2. **Admin login.** In Vercel, set `ADMIN_USERNAME` and `ADMIN_PASSWORD` (any
+   values you choose). `/admin` is gated behind these with plain HTTP Basic
+   Auth — the browser's own prompt, no account system to build or lose access
+   to. Without them set, `/admin` refuses every request rather than sit open.
+   Share the two values with your colleague directly (not over email).
+
+3. **A writer key, as a GitHub *Actions secret* — not a Vercel env var.**
+   Repo → Settings → Secrets and variables → Actions → New repository secret:
+   `ANTHROPIC_API_KEY` (recommended) or `GEMINI_API_KEY`. This is what the
+   `daily-content.yml` workflow uses to actually write each post — it runs
+   inside GitHub Actions, not on Vercel, so setting the Vercel copy from §7
+   does not cover it. This was the exact failure mode that broke the contact
+   form's emails earlier (right key, wrong place) — see the git history on
+   `src/lib/email.ts` if that story is useful context.
+
+4. **(Optional) IndexNow.** A key is already generated and published at
+   `public/51480d415fc51d69b3d02e0f4f46bd8f.txt`. Add
+   `INDEXNOW_KEY=51480d415fc51d69b3d02e0f4f46bd8f` as a GitHub Actions
+   repository secret to turn on the Bing/Yandex ping in step 4 of the diagram
+   above. Skip this and everything else still works — it only affects how
+   fast Bing/Yandex notice, never Google.
+
+5. **Confirm the workflow's schedule matches what you want.** `daily-content.yml`
+   also runs itself on a weekday cron against `content-queue/queue.csv`, if
+   that file exists — a second, standing way to queue work besides the
+   `/admin/new` upload. If you only want on-demand runs from `/admin`, delete
+   the `schedule:` block at the top of that file.
+
+### Day to day (what your colleague actually does)
+
+1. Go to `/admin/new`.
+2. Either fill in the row table (topic + category per blog post; service +
+   city per location page) or upload a `.csv`/`.xlsx` — same column format as
+   §7, `type,keyword,city,category,angle`, headings matched loosely.
+3. Pick a writer (Claude or Gemini) and click **Generate & send for review**.
+   The page shows live progress and a link to the run log.
+4. A few minutes later, go to `/admin/review`. Open the batch, read each post
+   exactly as it will look live, and either **Approve & publish** or **Send
+   back** with a note.
+5. That's it — sitemap, IndexNow and the build are automatic. For a post that
+   needs to rank *today* rather than whenever Google gets to it, use the
+   "Request Google indexing" link on the `/admin` dashboard.
+
+### Files
+
+| File | Role |
+| --- | --- |
+| `src/proxy.ts` | HTTP Basic Auth on `/admin*` and `/api/admin*` (Next.js 16 renamed `middleware.ts` → `proxy.ts`) |
+| `src/lib/admin/github.ts` | REST client — files, branches, workflow dispatch, pull requests |
+| `src/lib/admin/drafts.ts` | Reads a post or geo record off a PR branch instead of the local filesystem |
+| `src/app/admin/*` | Dashboard, new-batch form, review queue, draft preview |
+| `src/app/api/admin/*` | Upload → commit → dispatch; run-status polling |
+| `.github/workflows/daily-content.yml` | Runs §7's script, generates images, builds, opens the PR |
+| `.github/workflows/indexnow-ping.yml` | Pings Bing/Yandex after a merge touches a post or geo record |
+| `scripts/ping-indexnow.mjs` | The IndexNow call, diffing the last commit for changed URLs |
+
+`src/app/[slug]/PostPage.tsx` now accepts an optional pre-loaded `post` prop
+(instead of always reading one by slug off disk) so the draft-preview route
+can feed it a post fetched straight from a PR branch — the live route's
+behavior (`getPost(slug)`) is unchanged.

@@ -9,11 +9,14 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "generate:content": "node scripts/generate-daily-content.mjs",
-    "generate:images": "node scripts/generate-images.mjs"
+    "generate:images": "node scripts/generate-images.mjs",
+    "sync:sanity": "node scripts/sync-sanity-posts.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.117.1",
     "@google/genai": "^2.17.1",
+    "@sanity/client": "^8.6.1",
+    "@sanity/webhook": "^4.0.4",
     "lucide-react": "^0.469.0",
     "next": "^16.3.1",
     "react": "19.0.0",

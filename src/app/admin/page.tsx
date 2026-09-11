@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { AlertTriangle, ArrowRight, ExternalLink, Search } from 'lucide-react';
+import { AlertTriangle, ArrowRight, ExternalLink, FileSpreadsheet, PenLine, Search } from 'lucide-react';
 
 import { isGithubConfigured, listContentPulls, repoWebUrl } from '@/lib/admin/github';
 import { allPosts, formatDate } from '@/lib/posts';
@@ -35,6 +35,34 @@ export default async function AdminDashboard() {
           </div>
         </div>
       ) : null}
+
+      <section>
+        <h2 className="text-lg font-bold text-white">Two ways to create content</h2>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <Link
+            href="/admin/new"
+            className="block rounded-2xl border border-white/10 bg-white/5 p-5 transition-colors hover:border-blue-400/40 hover:bg-white/10"
+          >
+            <FileSpreadsheet className="h-5 w-5 text-blue-300" aria-hidden="true" />
+            <p className="mt-2 font-semibold text-white">List topics, get drafts</p>
+            <p className="mt-1 text-sm text-navy-300">
+              Fill in a quick list of topics (or upload a sheet) — the AI writer produces a full
+              draft of each one for you to review here.
+            </p>
+          </Link>
+
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+            <PenLine className="h-5 w-5 text-blue-300" aria-hidden="true" />
+            <p className="mt-2 font-semibold text-white">Write it yourself, in Sanity</p>
+            <p className="mt-1 text-sm text-navy-300">
+              Prefer writing the whole thing by hand? Use the{' '}
+              <span className="font-medium text-white">ITZ Digital Studio</span> (a separate app —
+              ask whoever set this up for its link and your login). Publishing there lands the post
+              in this same review queue.
+            </p>
+          </div>
+        </div>
+      </section>
 
       <section>
         <div className="flex items-center justify-between">

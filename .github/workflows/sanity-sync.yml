@@ -1,0 +1,89 @@
+name: Sync Sanity content
+
+# Pulls published posts from the ITZ Digital Sanity Studio (studio-itz-digital,
+# a separate app — see README §13) into this repo's normal content pipeline,
+# then opens a PR for review exactly like daily-content.yml does. The two
+# workflows share the `automated-content` label, so a Sanity-authored post
+# and a sheet-generated one show up in the same /admin/review queue.
+#
+# Three ways in:
+#   1. workflow_dispatch — triggered by src/app/api/admin/sanity-webhook the
+#      moment someone clicks Publish in the Studio (needs a webhook
+#      configured in Sanity's own dashboard — see README §13).
+#   2. workflow_dispatch — run by hand from the Actions tab.
+#   3. schedule — a fallback poll every 30 minutes, in case the webhook isn't
+#      set up yet. The sync script is idempotent (skips anything already
+#      synced), so this is safe to leave running even once the webhook works.
+#      Delete the `schedule:` block if you don't want it.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/30 * * * *"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sanity-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Sync from Sanity
+        id: sync
+        env:
+          SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
+          SANITY_DATASET: ${{ secrets.SANITY_DATASET }}
+          SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
+        run: |
+          node scripts/sync-sanity-posts.mjs | tee /tmp/sync-output.txt
+          if grep -qE '^[1-9][0-9]* synced' /tmp/sync-output.txt; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Fill in any missing featured images
+        if: steps.sync.outputs.changed == 'true'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          node scripts/derive-post-images.mjs
+          node scripts/generate-blog-images.mjs
+
+      - name: Validate with a full build
+        if: steps.sync.outputs.changed == 'true'
+        run: npm run build
+
+      - name: Open pull request for review
+        if: steps.sync.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "Content: sync published posts from Sanity"
+          branch: content/sanity-sync-${{ github.run_number }}
+          title: "New content from Sanity, for review"
+          body: |
+            Synced automatically by **Sync Sanity content** from the posts
+            marked Published in the Sanity Studio.
+
+            **Run log:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            Review at `/admin/review` on the site — it renders each post exactly
+            as it will look live. Merging this PR (or **Approve & publish**
+            there) deploys it.
+          labels: automated-content
+          base: ${{ github.ref_name }}
+          delete-branch: true

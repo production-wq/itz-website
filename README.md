@@ -646,6 +646,12 @@ prompt: `industries/home-services*` and `services/{review-management,creative}*`
    **GitHub Actions repository secrets** (different from the same-named Vercel
    var in §7 — that copy runs the CLI locally, this one runs the workflow that
    actually writes content). `INDEXNOW_KEY` is optional.
+8. **Sanity Studio — scaffolded and schema'd, needs project access + the
+   GitHub Actions secrets from §13.** The Studio itself
+   (`../studio-itz-digital`) is linked to project `yu3obcx8` already; add
+   anyone who'll write there as a project member in sanity.io/manage. The
+   webhook for instant sync is optional — the 30-minute schedule in
+   `sanity-sync.yml` covers it either way.
 
 ## 12. Content Studio — the `/admin` daily workflow
 
@@ -779,3 +785,78 @@ added — see §10.
 (instead of always reading one by slug off disk) so the draft-preview route
 can feed it a post fetched straight from a PR branch — the live route's
 behavior (`getPost(slug)`) is unchanged.
+
+## 13. Sanity Studio — a second way to write posts
+
+Some people would rather write a post directly than fill in a topic list and
+review AI output. **ITZ Digital Studio** (`../studio-itz-digital`, a sibling
+folder to this repo, *not* a subfolder of it — a separate small app with its
+own `package.json`, scaffolded with `npm create sanity@latest`) is that path.
+It feeds into the exact same pipeline §12 documents:
+
+```
+someone writes a post in the Studio, clicks Publish
+        │
+        ▼                                    (Sanity's own draft/publish
+Sanity webhook → POST /api/sanity-webhook      distinction is the review
+        │  verifies the signature, then         gate on that side)
+        ▼
+.github/workflows/sanity-sync.yml
+        │  runs scripts/sync-sanity-posts.mjs — converts the post's Portable
+        │    Text body to the same constrained HTML subset every other post
+        │    on the site uses (h2/h3/p, lists, bold, links — nothing else;
+        │    the Studio's schema only offers that much, so there is nothing
+        │    a writer could pick that wouldn't convert)
+        │  runs the image backfill + `npm run build`, same as §12
+        ▼
+opens a PR, labeled `automated-content` — same review queue as §12,
+/admin/review renders it exactly the same way, because by this point it *is*
+the same content shape as every other post.
+```
+
+### Why a second, separate app instead of one shared codebase
+
+Sanity Studio is its own React application (it embeds the Studio's editing
+UI, not just a schema) — bundling it into this Next.js app was explicitly
+declined when this was set up. Keeping it standalone also means:
+
+- This site's `package.json` never depends on the Studio's toolchain (React
+  19 studio internals, `styled-components`, etc.) — only on `@sanity/client`
+  and `@sanity/webhook`, both tiny and used only by `scripts/sync-sanity-posts.mjs`
+  and `src/app/api/sanity-webhook/route.ts`.
+- The site never talks to Sanity's API at request time. A page for a
+  Sanity-authored post is exactly as static and exactly as fast as every
+  other post — it renders from the same local JSON file, because that's what
+  the sync wrote. If Sanity has an outage, nothing on the live site notices.
+
+### Setup (one time)
+
+1. **The Studio itself** already exists at `../studio-itz-digital`, linked to
+   Sanity project `yu3obcx8` / dataset `production`. Whoever will write posts
+   needs their own Sanity login added as a project member (sanity.io/manage →
+   project → Members), then runs `npm install && npm run dev` inside that
+   folder (or you deploy it with `npx sanity deploy` for a hosted URL — see
+   its own README).
+2. **GitHub Actions secrets** (repo → Settings → Secrets and variables →
+   Actions): `SANITY_PROJECT_ID` = `yu3obcx8`, `SANITY_DATASET` = `production`.
+   `SANITY_API_TOKEN` only if the dataset's visibility is set to private
+   (Sanity → API → Tokens, Viewer role is enough).
+3. **The webhook, for instant sync on publish** (optional — without it,
+   `sanity-sync.yml`'s 30-minute schedule still picks up new posts on its
+   own): in sanity.io/manage → your project → API → Webhooks, add one
+   pointing at `https://itzdigital.co/api/sanity-webhook`, filter
+   `_type == "post"`, trigger on Create/Update, and set a secret. Put that
+   *same* secret in Vercel as `SANITY_WEBHOOK_SECRET`.
+
+### Files
+
+| File | Role |
+| --- | --- |
+| `../studio-itz-digital/schemaTypes/post.ts` | The `post` document type — deliberately narrow `body` formatting (h2/h3, bullet/number, bold, link only) so anything written there is guaranteed convertible |
+| `scripts/sync-sanity-posts.mjs` | Pulls published posts, converts Portable Text → HTML, writes the same `src/content/posts/<slug>.json` + `posts-index.json` shape §7's script does. Idempotent via `scripts/.sanity-sync-state.json` (tracks each post's `_updatedAt`) |
+| `.github/workflows/sanity-sync.yml` | Runs the sync + image backfill + build, opens the PR. Shares the `automated-content` label with `daily-content.yml` |
+| `src/app/api/sanity-webhook/route.ts` | Verifies Sanity's webhook signature (`@sanity/webhook`), then dispatches the workflow above. Lives outside `/api/admin/*` on purpose — Sanity's servers can't supply the Basic Auth §12's admin routes require |
+
+A post written in the Studio without its own featured image gets one the
+same way a sheet-generated post does — `derive-post-images.mjs` +
+`generate-blog-images.mjs`, already a step in the workflow above.

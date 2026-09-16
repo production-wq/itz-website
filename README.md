@@ -987,3 +987,52 @@ the true URL list, fetched every URL against a local production server,
 extracted every internal `href`/`img src`, and checked each against a live
 HEAD request. Re-run anytime against a running `next start` to confirm this
 section's numbers still hold.
+
+## 16. Roadmap content — the client's dated SEO content calendar
+
+A third content pipeline, separate from §7/§12's on-demand queue and §13's
+Sanity path: a **pre-planned, dated content calendar** the client supplied as
+a spreadsheet (212 blog posts, each with a `Launch Date`), meant to publish
+itself automatically every day going forward with no one uploading anything.
+
+**The queue.** `scripts/import-roadmap-csv.mjs <csv>` converts the client's
+export into `content-queue/roadmap/queue.json` — one row per planned post,
+keyed by the slug from its already-decided URL (other rows' internal-linking
+plans reference these exact URLs, so the slug is forced rather than derived
+from whatever title the model generates). Re-running the importer against an
+updated export only adds new rows; it never touches the status of rows
+already in the queue. The original export is kept at
+`content-queue/roadmap/blogs-source.csv` for reference.
+
+**The daily run.** `scripts/run-roadmap-batch.mjs` selects every row that is
+still `pending` and whose `launchDate` has arrived (today or earlier), oldest
+first, and processes up to `--limit` of them (default 4 — the pace the
+client asked for). `--all-due` ignores the limit and processes everything
+due in one run, for an initial catch-up of rows whose date was already in
+the past when this was set up. Always uses Gemini (`GEMINI_API_KEY`) — this
+queue is Gemini-only by requirement, unlike §7/§12's `--provider` choice.
+Each processed row is marked `published` with its live URL, so a re-run
+never repeats it.
+
+**The workflow.** `.github/workflows/roadmap-content.yml` runs the batch
+script on a daily `schedule` (or on demand via `workflow_dispatch`, with an
+`all_due` checkbox for a manual catch-up run), generates a featured image for
+each new post, validates with `npm run build`, and opens a PR labeled
+`automated-content` — the same review gate as every other pipeline here
+(merge or **Approve & publish** at `/admin/review` to actually go live).
+It deliberately does **not** auto-merge: this queue can run for months
+unattended, and a human still confirms each batch before it's live.
+
+**The notification.** Once the PR is opened (or immediately, if nothing was
+due), `scripts/send-roadmap-notification.mjs` emails
+**production@builtrightdigital.com** with the title and link of every page in
+the batch — a standalone Resend REST call (mirrors `src/lib/email.ts`, but
+runs in the Actions runner rather than on Vercel, so it needs its own copy of
+`RESEND_API_KEY` as a **repository secret**, not just a Vercel env var — see
+`.env.example`). Never fails the workflow if the secret is missing; it logs
+and skips instead.
+
+**Required GitHub Actions secrets** (Settings → Secrets and variables →
+Actions): `GEMINI_API_KEY` (likely already set for §12/§13) and
+`RESEND_API_KEY` (new — add this for the notification email to actually
+send).

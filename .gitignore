@@ -9,3 +9,9 @@ npm-debug.log*
 .vercel
 next-env.d.ts
 tsconfig.tsbuildinfo
+
+# Scratch output from scripts/run-roadmap-batch.mjs — regenerated every run,
+# only used to hand its summary to scripts/send-roadmap-notification.mjs
+# within the same workflow job. content-queue/roadmap/queue.json itself
+# (the actual state) is NOT ignored — that one is committed.
+content-queue/roadmap/.last-run.json

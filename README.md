@@ -1004,35 +1004,42 @@ updated export only adds new rows; it never touches the status of rows
 already in the queue. The original export is kept at
 `content-queue/roadmap/blogs-source.csv` for reference.
 
-**The daily run.** `scripts/run-roadmap-batch.mjs` selects every row that is
-still `pending` and whose `launchDate` has arrived (today or earlier), oldest
-first, and processes up to `--limit` of them (default 4 — the pace the
-client asked for). `--all-due` ignores the limit and processes everything
-due in one run, for an initial catch-up of rows whose date was already in
-the past when this was set up. Always uses Gemini (`GEMINI_API_KEY`) — this
-queue is Gemini-only by requirement, unlike §7/§12's `--provider` choice.
-Each processed row is marked `published` with its live URL, so a re-run
-never repeats it.
+**The automatic daily run lives on Vercel, not GitHub Actions.**
+`src/app/api/cron/roadmap/route.ts`, triggered once a day by the `crons`
+entry in `vercel.json`, selects every row that's still `pending` and whose
+`launchDate` has arrived (today or earlier), oldest first, up to 4 — the
+pace the client asked for — and generates them concurrently with Gemini
+(this queue is Gemini-only by requirement, unlike §7/§12's `--provider`
+choice). It reads and writes `content-queue/roadmap/queue.json` straight off
+GitHub via the REST API (`src/lib/admin/github.ts` — the same client
+`/admin` already uses), commits each new post + its featured image to a
+same-day branch, and opens a PR labeled `automated-content` — **the exact
+same `/admin/review` gate as every other content pipeline in this repo.**
+Nothing here auto-merges; a human still approves each batch before it goes
+live. Once the PR is open, it emails **production@builtrightdigital.com**
+(via `src/lib/email.ts`, same as every other transactional email on this
+site) with the title and link of every page in the batch.
 
-**The workflow.** `.github/workflows/roadmap-content.yml` runs the batch
-script on a daily `schedule` (or on demand via `workflow_dispatch`, with an
-`all_due` checkbox for a manual catch-up run), generates a featured image for
-each new post, validates with `npm run build`, and opens a PR labeled
-`automated-content` — the same review gate as every other pipeline here
-(merge or **Approve & publish** at `/admin/review` to actually go live).
-It deliberately does **not** auto-merge: this queue can run for months
-unattended, and a human still confirms each batch before it's live.
+This runs entirely inside a Vercel serverless function — deliberately, so it
+needs **no GitHub Actions secrets at all**. It reuses whatever
+`GITHUB_API_TOKEN`, `GEMINI_API_KEY` and `RESEND_API_KEY` are *already* set
+as Vercel env vars for `/admin` (§12) and the Studio "Generate with AI"
+button (§14). The one new thing to add is `CRON_SECRET` — see below.
 
-**The notification.** Once the PR is opened (or immediately, if nothing was
-due), `scripts/send-roadmap-notification.mjs` emails
-**production@builtrightdigital.com** with the title and link of every page in
-the batch — a standalone Resend REST call (mirrors `src/lib/email.ts`, but
-runs in the Actions runner rather than on Vercel, so it needs its own copy of
-`RESEND_API_KEY` as a **repository secret**, not just a Vercel env var — see
-`.env.example`). Never fails the workflow if the secret is missing; it logs
-and skips instead.
+**Required Vercel env vars** (Project → Settings → Environment Variables):
 
-**Required GitHub Actions secrets** (Settings → Secrets and variables →
-Actions): `GEMINI_API_KEY` (likely already set for §12/§13) and
-`RESEND_API_KEY` (new — add this for the notification email to actually
-send).
+| Variable | Already set? | Notes |
+| - | - | - |
+| `GITHUB_API_TOKEN`, `GITHUB_REPO`, `GITHUB_BASE_BRANCH` | Yes — required for `/admin` (§12) to work at all | No action needed |
+| `GEMINI_API_KEY` | Likely — used by the Studio "Generate with AI" button (§14) | Check it's there |
+| `RESEND_API_KEY` | Yes, per the client | No action needed |
+| `CRON_SECRET` | **No — add this one** | Any long random string. Vercel sends it back as `Authorization: Bearer <value>` on every cron-triggered request automatically once it's set; the route checks it and 503s without it. Steps: Vercel dashboard → your project → **Settings** → **Environment Variables** → **Add New** → Key `CRON_SECRET`, Value: any random string (e.g. generate one with `openssl rand -hex 32`) → save for Production → redeploy. |
+
+**Manual / catch-up path.** `scripts/run-roadmap-batch.mjs` (with `--limit`
+or `--all-due`) and `.github/workflows/roadmap-content.yml` still exist as a
+local/manual fallback — full-build-gated, runs from a laptop or triggered by
+hand from the Actions tab — for a large one-off catch-up or if the Vercel
+cron ever needs debugging. It is **not** wired to a `schedule` trigger, so it
+never runs on its own and never competes with the Vercel cron. It needs its
+own `GEMINI_API_KEY` / `RESEND_API_KEY` as GitHub Actions repository secrets
+only if you actually use it.

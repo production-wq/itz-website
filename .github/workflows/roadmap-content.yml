@@ -1,19 +1,21 @@
-name: Roadmap content (daily)
+name: Roadmap content (manual)
 
 # Works through content-queue/roadmap/queue.json — the dated content
 # calendar imported from the client's SEO roadmap spreadsheet via
-# scripts/import-roadmap-csv.mjs. Every day this picks up whichever rows are
-# now due (launchDate <= today, still pending), generates them with Gemini
-# (forced — this queue is Gemini-only per the roadmap's own requirement),
-# generates a featured image for each, validates with a full build, and
-# opens a PR labeled `automated-content` for review at /admin/review — same
-# review gate as the other content pipelines in this repo, so nothing here
-# publishes straight to production unattended. Once the PR is open,
-# production@builtrightdigital.com gets an email with links to what's ready.
+# scripts/import-roadmap-csv.mjs.
 #
-# Backdated rows (older than today the day this was first set up) are not
-# dumped into one giant run — see the `all_due` dispatch input to process
-# them explicitly in a controlled batch instead.
+# The AUTOMATIC daily run of this same queue lives on Vercel now, not here —
+# see src/app/api/cron/roadmap/route.ts (triggered by the `crons` entry in
+# vercel.json). That path needs no GitHub Actions secrets at all: it reuses
+# whatever GITHUB_API_TOKEN / GEMINI_API_KEY / RESEND_API_KEY are already
+# set as Vercel env vars for /admin and the Studio "Generate with AI" button.
+#
+# This workflow is kept only as a manual escape hatch — a full-build-gated,
+# `--all-due` capable run you can trigger by hand from the Actions tab if you
+# ever need one (e.g. a large catch-up, or debugging). It needs its OWN
+# copies of GEMINI_API_KEY and RESEND_API_KEY as repository secrets
+# (Settings → Secrets and variables → Actions) to work — see README §16 for
+# why the daily path avoids that requirement.
 
 on:
   workflow_dispatch:
@@ -25,8 +27,6 @@ on:
         description: "Process every due row in one run, ignoring the limit (use for catch-up)"
         type: boolean
         default: false
-  schedule:
-    - cron: "0 13 * * *" # ~07:00 America/Denver daily (MST, UTC-6) — adjust for DST
 
 permissions:
   contents: write

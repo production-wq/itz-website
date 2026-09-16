@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/roadmap",
+      "schedule": "0 13 * * *"
+    }
+  ]
+}

@@ -221,6 +221,34 @@ export async function getPull(number: number): Promise<PullRequest> {
   return ghJson<PullRequest>(`${repoPath()}/pulls/${number}`);
 }
 
+/** Opens a PR from `head` into the base branch, labeled automated-content. */
+export async function createPullRequest(opts: {
+  head: string;
+  title: string;
+  body: string;
+}): Promise<PullRequest> {
+  const { baseBranch } = config();
+  const pr = await ghJson<PullRequest & { number: number }>(`${repoPath()}/pulls`, {
+    method: 'POST',
+    body: JSON.stringify({ head: opts.head, base: baseBranch, title: opts.title, body: opts.body }),
+  });
+  await gh(`${repoPath()}/issues/${pr.number}/labels`, {
+    method: 'POST',
+    body: JSON.stringify({ labels: [CONTENT_PR_LABEL] }),
+  });
+  return pr;
+}
+
+/** The open PR for a given head branch, if one already exists (any label). */
+export async function findOpenPullForBranch(branch: string): Promise<PullRequest | null> {
+  const { repo } = config();
+  const owner = repo?.split('/')[0];
+  const all = await ghJson<PullRequest[]>(
+    `${repoPath()}/pulls?state=open&head=${encodeURIComponent(`${owner}:${branch}`)}`,
+  );
+  return all[0] ?? null;
+}
+
 export type PullFile = { filename: string; status: string; additions: number; deletions: number };
 
 export async function getPullFiles(number: number): Promise<PullFile[]> {

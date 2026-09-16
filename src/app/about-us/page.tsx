@@ -42,7 +42,7 @@ const values = [
   },
   {
     title: 'Specialisation over volume',
-    body: 'Five industries, learned properly. We would rather know how a criminal defense intake actually works than run a hundred generic accounts.',
+    body: 'Seven industries, learned properly. We would rather know how a criminal defense intake actually works than run a hundred generic accounts.',
   },
 ];
 
@@ -124,7 +124,7 @@ export default function AboutPage() {
             <p>
               Unlike a single ad campaign that stops the moment you stop paying for it, local SEO
               and a well-optimised Google Business Profile keep working month after month. Clients
-              across our five core industries typically see cost per lead fall as organic rankings
+              across our core industries typically see cost per lead fall as organic rankings
               climb, because free organic traffic starts doing the work that paid clicks used to.
             </p>
 
@@ -142,11 +142,11 @@ export default function AboutPage() {
         <div className="container">
           <div className="max-w-measure" data-reveal>
             <p className="eyebrow-script mb-3">Who we serve</p>
-            <h2 className="text-display-sm text-navy-700">Six fields, learned properly</h2>
+            <h2 className="text-display-sm text-navy-700">Seven fields, learned properly</h2>
             <p className="mt-4 text-body-lg text-ink-600">{about.industriesIntro}</p>
           </div>
 
-          <ul className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <ul className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-7">
             {[
               { slug: 'lawyers', label: 'Legal', img: 'lawyers-criminal-defense' },
               { slug: 'medical', label: 'Medical', img: 'medical-dentists' },
@@ -154,6 +154,7 @@ export default function AboutPage() {
               { slug: 'education', label: 'Education', img: 'education-universities' },
               { slug: 'automotive', label: 'Automotive', img: 'automotive-auto-repair' },
               { slug: 'home-services', label: 'Home Services', img: 'home-services' },
+              { slug: 'marketing-agencies', label: 'Marketing Agencies', img: 'marketing-agencies' },
             ].map((it, i) => (
               <li key={it.slug} data-reveal data-reveal-delay={i}>
                 <Link

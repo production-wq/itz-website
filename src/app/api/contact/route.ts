@@ -44,7 +44,7 @@ export async function GET(request: Request) {
  * Contact endpoint.
  *
  * Validates the submission, then sends two emails via Resend (see src/lib/email.ts):
- *   1. an internal notification to CONTACT_NOTIFY_TO (production@itzontarget.com)
+ *   1. an internal notification to CONTACT_NOTIFY_TO (info@itzontarget.com)
  *      with every field, reply-to set to the enquirer so a reply goes straight
  *      back to them;
  *   2. a branded "thanks, we've got it" confirmation to the enquirer.

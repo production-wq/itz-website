@@ -24,7 +24,12 @@ export function postMetadata(slug: string): Metadata {
   const description = post.seoDescription ?? post.excerpt;
 
   return {
-    title: post.seoTitle ?? post.title,
+    // `absolute` opts out of the root layout's `%s | ITZ Digital` template.
+    // Deep content pages need every character for the actual topic — the
+    // brand suffix earns its keep on hub pages (home, services, pricing),
+    // not on 600+ individual articles where it just pushes an already-tight
+    // title past the point search engines truncate it.
+    title: { absolute: post.seoTitle ?? post.title },
     description,
     alternates: { canonical: `/${post.slug}` },
     openGraph: {

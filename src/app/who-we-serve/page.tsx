@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Car, GraduationCap, Home, Scale, Stethoscope, Wrench } from 'lucide-react';
+import { Car, GraduationCap, Handshake, Home, Scale, Stethoscope, Wrench } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 import { CtaBanner } from '@/components/sections/CtaBanner';
@@ -13,18 +13,18 @@ import { about } from '@/lib/about-content';
 export const metadata: Metadata = {
   title: 'Who We Serve',
   description:
-    'Marketing built separately for legal, medical, real estate, education and automotive businesses — because each competes for local search in a different way.',
+    'Marketing built separately for legal, medical, real estate, education, automotive and home services businesses, plus white-label fulfillment for marketing agencies — because each competes for visibility in a different way.',
   alternates: { canonical: '/who-we-serve' },
 };
 
-const icons: Record<Industry['icon'], LucideIcon> = { Scale, Stethoscope, Home, GraduationCap, Car, Wrench };
+const icons: Record<Industry['icon'], LucideIcon> = { Scale, Stethoscope, Home, GraduationCap, Car, Wrench, Handshake };
 
 export default function WhoWeServePage() {
   return (
     <>
       <PageHero
         eyebrow="Who we serve"
-        title="Five industries, five distinct strategies"
+        title="Seven industries, seven distinct strategies"
         intro="A personal injury firm and a med spa both want more local calls, but almost nothing about how they get them is the same. These are the verticals we know well enough to be useful in."
         crumbs={[{ label: 'Who We Serve' }]}
         image="/images/headers/who-we-serve.webp"
@@ -44,7 +44,7 @@ export default function WhoWeServePage() {
               <p>
                 A generalist agency learns your rules, your buying cycle and your definition of a
                 good lead on your budget, in the first few months of the engagement. We have already
-                run enough campaigns in each of these five fields to skip that — which is most of
+                run enough campaigns in each of these seven fields to skip that — which is most of
                 why the work moves faster and wastes less.
               </p>
             </div>
@@ -53,7 +53,7 @@ export default function WhoWeServePage() {
             <div className="relative aspect-[4/3] overflow-hidden rounded-4xl bg-white shadow-card ring-1 ring-navy-100">
               <Image
                 src="/images/who-we-serve/hero.webp"
-                alt="Five industry emblems converging into one growth strategy"
+                alt="Seven industry emblems converging into one growth strategy"
                 fill
                 sizes="(min-width: 1024px) 40vw, 100vw"
                 className="object-contain"
@@ -116,7 +116,7 @@ export default function WhoWeServePage() {
         <CtaBanner
           title="Don't see your industry listed?"
           highlight="your industry"
-          body="We work well beyond these five. If your business depends on local search, the playbook usually transfers — tell us what you do and we'll tell you honestly whether we can help."
+          body="We work well beyond these seven. If your business depends on local search, the playbook usually transfers — tell us what you do and we'll tell you honestly whether we can help."
         />
       </div>
     </>

@@ -22,6 +22,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       { url: url('/case-studies'), changeFrequency: 'monthly', priority: 0.7 },
       { url: url('/blog'), changeFrequency: 'daily', priority: 0.8 },
       { url: url('/contact'), changeFrequency: 'yearly', priority: 0.9 },
+      { url: url('/sitemap'), changeFrequency: 'weekly', priority: 0.3 },
       { url: url('/terms-conditions'), changeFrequency: 'yearly', priority: 0.1 },
     ] satisfies MetadataRoute.Sitemap
   ).map((entry) => ({ ...entry, lastModified: now }));

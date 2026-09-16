@@ -110,12 +110,20 @@ export function Footer() {
           <p>
             &copy; {new Date().getFullYear()} {site.legalName}. All rights reserved.
           </p>
-          <Link
-            href="/terms-conditions"
-            className="inline-flex min-h-tap items-center rounded-lg px-2 transition-colors hover:text-white"
-          >
-            Terms &amp; Conditions
-          </Link>
+          <div className="flex items-center gap-1">
+            <Link
+              href="/sitemap"
+              className="inline-flex min-h-tap items-center rounded-lg px-2 transition-colors hover:text-white"
+            >
+              Sitemap
+            </Link>
+            <Link
+              href="/terms-conditions"
+              className="inline-flex min-h-tap items-center rounded-lg px-2 transition-colors hover:text-white"
+            >
+              Terms &amp; Conditions
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

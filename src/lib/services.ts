@@ -555,6 +555,187 @@ export const services: Service[] = [
       { title: 'Performance review', body: 'Which hooks and formats won, feeding the next round of variants.' },
     ],
   },
+  {
+    slug: 'cold-outreach',
+    whoItsFor: [
+      'You sell to businesses, not consumers, and can name the exact job title or company type that buys from you.',
+      'Your sales cycle can absorb a steady trickle of new conversations rather than needing volume overnight.',
+      'You have someone who can actually take a qualified call or demo when outreach books one.',
+    ],
+    notFor: 'Skip outreach if you sell a low-ticket consumer product, or if you have nobody available to follow up on a response within a day or two — a good reply that sits for a week is a wasted one.',
+    faqs: [
+      {
+        question: 'How is this different from just running cold calling or cold email on their own?',
+        answer: 'Most B2B prospects need more than one touch before they respond, and different people respond to different channels. We run calling and email as one coordinated sequence against the same target list — a call that references an email sent two days earlier converts differently than either alone. If your list or offer only supports one channel, we will say so rather than sell you both by default.',
+      },
+      {
+        question: 'How do you build the prospect list?',
+        answer: 'From your ideal-customer definition — industry, company size, title, geography, whatever actually predicts a good client for you — cross-checked against verified contact data so we are not calling and emailing bounced or outdated records. We review the list with you before anything goes out, because a list built on the wrong definition wastes every touch that follows it.',
+      },
+      {
+        question: 'What counts as a qualified result?',
+        answer: 'A booked call or meeting with someone who fits your buyer definition and confirmed real interest — not a list of anyone who replied. We track response rate and meetings booked separately, because a campaign generating replies that never turn into meetings has a qualifying problem, not an outreach volume problem, and we adjust the targeting rather than just sending more.',
+      },
+      {
+        question: 'How long before we see booked meetings?',
+        answer: 'Expect the first two to three weeks to be list-building, sequence-writing and testing which message actually lands — meetings before that point usually mean the targeting was already narrow and easy. Real, repeatable volume typically shows up by week four to six, once we know which angle gets a response from your specific buyer.',
+      },
+    ],
+    name: 'Cold Outreach',
+    navLabel: 'Cold Outreach',
+    tagline: 'Coordinated calling and email that books meetings with the buyers you actually want',
+    summary:
+      'A single cold email or a single cold call gets ignored more often than not. We run both as one sequence against a list built on your real buyer definition, so the second and third touch land instead of starting over each time.',
+    icon: '/images/icons/cold-outreach.svg',
+    children: ['cold-calling', 'cold-email'],
+    bullets: [
+      'Verified prospect lists built from your actual buyer definition, not a generic industry export',
+      'Calling and email sequenced together so later touches reference earlier ones',
+      'Every meeting booked reviewed against your buyer criteria, not counted as a raw reply',
+      'Scripts and email copy rewritten from what is actually getting responses, not written once and left alone',
+    ],
+    deliverables: [
+      { title: 'Buyer & list build', body: 'Your ideal-customer profile turned into a verified, deduplicated list of real prospects who fit it.' },
+      { title: 'Sequence & scripts', body: 'A coordinated calling and email cadence, with scripts and copy built around your actual offer.' },
+      { title: 'Live outreach', body: 'Calls made and emails sent on schedule, with every meaningful response routed to you the same day.' },
+      { title: 'Weekly reporting', body: 'Touches made, response rate and meetings booked — by list segment, so you see what is actually working.' },
+    ],
+  },
+  {
+    slug: 'cold-calling',
+    whoItsFor: [
+      'You have a defined list of companies or contacts worth calling, not just a general market.',
+      'Someone on your team can pick up a warm handoff within the same day it is booked.',
+      'Your product or service is worth a five-minute phone conversation to explain.',
+    ],
+    notFor: "Skip standalone calling if you have no list to call yet or your offer needs a visual demo to make sense over the phone — pair it with email or outreach that can send something to look at first.",
+    faqs: [
+      {
+        question: 'Who is actually making the calls?',
+        answer: 'A dedicated caller working from your script and your list, not an overseas call center reading a generic pitch. We brief callers on your actual product, common objections and what a qualified prospect sounds like, and you can listen to call recordings to hear exactly how your company is being represented.',
+      },
+      {
+        question: 'What happens when someone says yes?',
+        answer: 'A qualified prospect gets handed to you the same day — a calendar link sent live on the call where possible, or a same-day summary with contact details and what they said if a live transfer is not practical. The handoff includes enough context that your team is not calling back cold.',
+      },
+      {
+        question: 'How do you handle gatekeepers and voicemail?',
+        answer: 'With a defined process rather than giving up after one attempt — a documented number of touches per contact across different times of day, a short voicemail script that earns a callback rather than a generic pitch, and gatekeeper scripts that ask for the right person by name and title. Contacts that never connect after the full sequence are reported back so you know what did not work, not just what did.',
+      },
+      {
+        question: 'Can you call on a specific script we already use?',
+        answer: 'Yes — if your team already has a script that works, we adapt it rather than replace it, then refine based on what actually gets a response from the specific list we are calling. If you do not have one yet, we write it with you from your actual pitch, not a generic template.',
+      },
+    ],
+    name: 'Cold Calling',
+    navLabel: 'Cold Calling',
+    tagline: 'Live phone outreach that hands you a qualified conversation, not a dial-count report',
+    summary:
+      "Cold calling done badly is a script read fast at a list that was never qualified. Done properly it is a real conversation, a defined follow-up process for the contacts who do not answer, and a same-day handoff the moment someone is worth your time.",
+    icon: '/images/icons/cold-calling.svg',
+    bullets: [
+      'Dedicated callers briefed on your product, not a script read cold off a generic list',
+      'A defined multi-touch process for voicemail and gatekeepers instead of one attempt and done',
+      'Call recordings available so you can hear exactly how prospects hear your company',
+      'Same-day handoff of qualified conversations, with enough context to skip the cold callback',
+    ],
+    deliverables: [
+      { title: 'Script & objection handling', body: 'A calling script built from your actual pitch, plus responses to the objections your list will realistically raise.' },
+      { title: 'Live dialing', body: 'Calls made against your list on a defined cadence, with a documented number of attempts per contact.' },
+      { title: 'Qualified handoffs', body: 'Interested, qualified contacts routed to you the same day, with context on what they said.' },
+      { title: 'Call reporting', body: 'Connect rate, qualified conversations and outcomes by list segment — not just a raw dial count.' },
+    ],
+  },
+  {
+    slug: 'cold-email',
+    whoItsFor: [
+      'You have a specific buyer you can describe well enough to write to directly.',
+      'Your offer can be explained and made interesting in a few short paragraphs.',
+      'You can respond to interested replies within a day so the momentum is not lost.',
+    ],
+    notFor: 'Skip cold email if your list is unverified or bought in bulk — deliverability and your domain reputation both suffer, and the campaign underperforms before the copy is even a factor.',
+    faqs: [
+      {
+        question: 'How do you avoid landing in spam?',
+        answer: 'Domain and mailbox setup matters more than most people expect — proper SPF, DKIM and DMARC records, a warmed-up sending domain separate from your main company email, and sending volume that ramps up gradually rather than blasting a full list on day one. We set this up before a single prospecting email goes out, because a great email that lands in spam never gets read regardless of the copy.',
+      },
+      {
+        question: 'How personalized are the emails really?',
+        answer: 'Each email references something specific and true about the recipient or their company — not a mail-merge first name dropped into a generic template. That takes more time per contact than a mass blast, which is why list quality matters more than list size: a smaller, well-researched list that actually gets read outperforms a huge one that gets deleted.',
+      },
+      {
+        question: 'How many emails are in a sequence, and how far apart?',
+        answer: 'Typically three to five emails spaced several days apart, each with a different angle rather than the same pitch resent — the first states the reason for reaching out, later ones add a new piece of value or social proof, and the last is a genuine breakup email. We stop the sequence the moment someone replies or unsubscribes, and never re-add them without a fresh opt-in.',
+      },
+      {
+        question: 'What do you report on?',
+        answer: 'Open rate, reply rate and — the number that actually matters — qualified meetings booked, broken out by list segment and by which email in the sequence got the response. That tells us which message is working and which segment of the list is worth expanding, rather than one blended number that hides both.',
+      },
+    ],
+    name: 'Cold Email',
+    navLabel: 'Cold Email',
+    tagline: 'Prospecting email that reaches the inbox and reads like it was written by a person',
+    summary:
+      'Most cold email fails on deliverability before the copy is ever read. We fix the sending setup first — domain authentication, warm-up, sending limits — then write sequences specific enough to your prospect that they read past the first line.',
+    icon: '/images/icons/cold-email.svg',
+    bullets: [
+      'Domain authentication and mailbox warm-up handled before any prospecting email sends',
+      'Sequences written around a specific, true detail per recipient, not a mail-merge template',
+      'A defined multi-email cadence with a genuine breakup email, not one blast repeated',
+      'Reporting split by list segment and by which email in the sequence actually got the reply',
+    ],
+    deliverables: [
+      { title: 'Deliverability setup', body: 'SPF, DKIM, DMARC and a warmed-up sending domain, checked before volume ramps up.' },
+      { title: 'List & personalization research', body: 'A verified list with the specific detail per contact the copy will actually reference.' },
+      { title: 'Sequence copywriting', body: 'A multi-email sequence with a distinct angle per email, ending in a genuine breakup message.' },
+      { title: 'Reply handling & reporting', body: 'Interested replies routed to you promptly, with open, reply and meeting-booked rates by segment.' },
+    ],
+  },
+  {
+    slug: 'social-media-management',
+    whoItsFor: [
+      'You want a consistent organic presence on the platforms your customers actually use, not paid reach.',
+      'You can approve a content calendar in advance rather than needing everything real-time and reactive.',
+      'You have real material to draw on — a team, a workspace, finished jobs — even if you have no time to post it.',
+    ],
+    notFor: 'Skip organic social management if your buyers do not spend time on social at all, or if you need it to directly replace paid lead generation — organic builds brand and trust over months, it is not a lead-volume channel on its own.',
+    faqs: [
+      {
+        question: 'How is this different from Social Media Ads?',
+        answer: 'This is your organic presence — the everyday posts, the profile, the community replies — the thing people see when they check whether a business is real before they call. Social Media Ads is paid placement aimed at driving leads directly. Many clients run both, because a strong organic profile makes the paid ads look more credible when someone clicks through to check.',
+      },
+      {
+        question: 'What platforms do you cover?',
+        answer: 'Whichever ones your actual customers use — usually Facebook and Instagram for most local businesses, with LinkedIn added for B2B-facing accounts. We do not push every platform by default; a profile posted to and then abandoned looks worse than not having one, so we would rather run two platforms consistently than five badly.',
+      },
+      {
+        question: 'Do we need to approve every post before it goes live?',
+        answer: 'Most clients review a content calendar in batches — a few weeks at a time — rather than approving each post individually, which keeps the cadence consistent without becoming a daily task for you. If you want tighter approval on specific topics or campaigns, we build that into the workflow; it just means a slower posting pace on the material that needs it.',
+      },
+      {
+        question: 'Do you handle comments and messages, or just posting?',
+        answer: 'We can cover both. Posting-only keeps the scope simple; adding community management means responding to comments and routing genuine leads from DMs to you promptly, on a response-time standard we agree upfront. What we will always flag rather than handle silently is anything that looks like a complaint or a reputation issue — that goes to you immediately, not into a queue.',
+      },
+    ],
+    name: 'Social Media Management',
+    navLabel: 'Social Media',
+    tagline: 'A consistent organic presence that makes a business look real before anyone calls',
+    summary:
+      'Most local businesses have a social profile that was posted to for a month and then abandoned. We run a content calendar and a real posting cadence, so the profile a prospect checks before they call looks like an active, credible business.',
+    icon: '/images/icons/social-media-management.svg',
+    bullets: [
+      'A content calendar planned around your actual business, not generic stock-photo filler',
+      'Consistent posting cadence on the platforms your customers actually use',
+      'Optional community management — comments and DMs handled, genuine leads routed to you fast',
+      'Reputation-risk comments flagged to you immediately, never left sitting in a queue',
+    ],
+    deliverables: [
+      { title: 'Content calendar', body: 'A planned posting schedule built around your services, jobs and team — reviewed with you in batches.' },
+      { title: 'Content production', body: 'Posts written and designed to your brand, using your own material wherever you have it.' },
+      { title: 'Consistent publishing', body: 'Posts published on schedule across the platforms that matter for your business.' },
+      { title: 'Monthly reporting', body: 'Reach, engagement and profile growth, plus any genuine leads the channel produced.' },
+    ],
+  },
 ];
 
 export const serviceBySlug = new Map(services.map((s) => [s.slug, s]));

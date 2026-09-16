@@ -83,6 +83,65 @@ const MANIFEST = [
       'with a small problem icon (a drip, a spark, a leak).',
   },
 
+  // ── Marketing Agencies industry (round 3) ───────────────────────────────────
+  {
+    file: 'industries/marketing-agencies.webp',
+    aspect: '4:3',
+    prompt:
+      'A white-label partnership concept: two simplified professional figures shaking hands, ' +
+      'with a folder or report passing invisibly between them labelled only with a generic ' +
+      'blank tag, floating UI cards showing a branded dashboard, a rising chart and a client ' +
+      'handshake icon. Professional, trustworthy, understated.',
+  },
+  {
+    file: 'industries/marketing-agencies-white-label-seo.webp',
+    aspect: '4:3',
+    prompt:
+      'White-label SEO fulfillment: a magnifying glass over a rising search-rank ladder, a ' +
+      'technical audit checklist card, a branded (blank-label) report being handed from one ' +
+      'desk to another, a small padlock signalling confidentiality.',
+  },
+  {
+    file: 'industries/marketing-agencies-white-label-ppc.webp',
+    aspect: '4:3',
+    prompt:
+      'White-label paid ads management: a shared dashboard showing ad performance bars, a bid ' +
+      'dial, two overlapping browser windows labelled only with a blank generic tag, a small ' +
+      'upward trend line.',
+  },
+  {
+    file: 'industries/marketing-agencies-white-label-web-design.webp',
+    aspect: '4:3',
+    prompt:
+      'White-label web design fulfillment: a wireframe becoming a finished website shown on a ' +
+      'laptop, a Core Web Vitals speed gauge, a blank generic client-logo placeholder tag, a ' +
+      'handoff arrow between two desks.',
+  },
+  {
+    file: 'industries/marketing-agencies-strategy.webp',
+    aspect: '4:3',
+    prompt:
+      'An agency choosing a fulfillment partner: a decision tree or checklist card weighing ' +
+      'hire-in-house versus outsource, a scoped-engagement contract card, a calendar showing ' +
+      'capacity freeing up.',
+  },
+  {
+    file: 'industries/marketing-agencies-approach.webp',
+    aspect: '4:3',
+    prompt:
+      'Running a white-label account: a status update message flowing from a fulfillment desk ' +
+      'to an agency desk (never to a third client icon), a branded report being generated, a ' +
+      'small shield icon signalling confidentiality.',
+  },
+  {
+    file: 'industries/marketing-agencies-market.webp',
+    aspect: '4:3',
+    prompt:
+      'An agency weighing capacity: a stack of client folders next to a small overwhelmed team ' +
+      'icon, a scale balancing "hire" against "outsource" options, a growth chart held back by ' +
+      'a small ceiling line.',
+  },
+
   // ── New services (round 2) ────────────────────────────────────────────────
   {
     file: 'services/review-management.webp',
@@ -115,6 +174,71 @@ const MANIFEST = [
       'Creative production flow: raw footage on the left, an editing timeline in the middle, ' +
       'and finished outputs on the right — a vertical social clip on a phone, a testimonial ' +
       'thumbnail, and an ad banner — shown as connected rounded nodes.',
+  },
+
+  // ── New services (round 3 — outbound + organic social) ──────────────────────
+  {
+    file: 'services/cold-outreach.webp',
+    aspect: '4:3',
+    prompt:
+      'A coordinated outreach dashboard: a contact list card, a calling icon and an email icon ' +
+      'connected by a timeline arrow into one sequence, a calendar with a booked-meeting badge ' +
+      'at the end.',
+  },
+  {
+    file: 'services/cold-outreach-process.webp',
+    aspect: '4:3',
+    prompt:
+      'Outreach sequence flow: a prospect list card on the left, a phone-call node and an ' +
+      'email node in the middle connected in sequence, a booked-meeting calendar card on the ' +
+      'right — shown as connected rounded nodes.',
+  },
+  {
+    file: 'services/cold-calling.webp',
+    aspect: '4:3',
+    prompt:
+      'A calling dashboard mockup: a simplified headset-and-phone icon, a call-connect waveform, ' +
+      'a small contact card with a qualified checkmark, a calendar slot being booked.',
+  },
+  {
+    file: 'services/cold-calling-process.webp',
+    aspect: '4:3',
+    prompt:
+      'Calling process flow: a prospect list on the left, a phone icon with a waveform in the ' +
+      'middle representing the call, a qualified-lead card with a checkmark on the right — ' +
+      'shown as connected rounded nodes.',
+  },
+  {
+    file: 'services/cold-email.webp',
+    aspect: '4:3',
+    prompt:
+      'A cold-email dashboard mockup: an envelope icon with a verified checkmark (deliverability), ' +
+      'a sequence of three small connected email cards, a reply notification badge, a small ' +
+      'rising open-rate line.',
+  },
+  {
+    file: 'services/cold-email-process.webp',
+    aspect: '4:3',
+    prompt:
+      'Email sequence flow: a domain-verification shield on the left, three connected envelope ' +
+      'nodes representing a multi-email sequence in the middle, a reply notification card on ' +
+      'the right — shown as connected rounded nodes.',
+  },
+  {
+    file: 'services/social-media-management.webp',
+    aspect: '4:3',
+    prompt:
+      'A social media content calendar mockup: a weekly grid with a few filled post-slots, a ' +
+      'phone showing a social feed post with a like and comment icon, a small engagement ' +
+      'trend line rising.',
+  },
+  {
+    file: 'services/social-media-management-process.webp',
+    aspect: '4:3',
+    prompt:
+      'Social content flow: a content calendar card on the left, a post-creation node in the ' +
+      'middle, a phone showing the published post with engagement icons on the right — shown ' +
+      'as connected rounded nodes.',
   },
 
   // ── Homepage ───────────────────────────────────────────────────────────────

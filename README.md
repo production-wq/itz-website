@@ -616,7 +616,7 @@ prompt: `industries/home-services*` and `services/{review-management,creative}*`
 1. **Contact form transport — wired, needs the Resend key.**
    `src/app/api/contact/route.ts` now sends two emails per submission via Resend
    (`src/lib/email.ts` — REST, no SDK; `src/lib/email-templates.ts` — the HTML):
-   an internal notification to `CONTACT_NOTIFY_TO` (`production@itzontarget.com`,
+   an internal notification to `CONTACT_NOTIFY_TO` (`info@itzontarget.com`,
    `reply_to` the enquirer) and a branded confirmation to the enquirer. Delivery
    never blocks the response — a provider failure is logged and the form still
    returns `{ ok: true }`. **To go live:** add the `itzdigital.co` domain in
@@ -944,3 +944,46 @@ own `BLOG_CATEGORIES` list (`scripts/lib/content-gen.mjs`) matching what's
 actually used across the existing posts, instead of deriving it from
 services. This affects §7/§12's pipeline too, not just this button — same
 shared prompt.
+
+## 15. Technical SEO audit response
+
+A round of fixes against a 12-point technical SEO audit. Verified against a
+full local crawl (every sitemap URL fetched, every internal link and image
+checked live) before and after — see the numbers below rather than taking the
+fixes on faith.
+
+| # | Finding | Status | What was actually true |
+| - | ------- | ------ | ----------------------- |
+| 1 | SSL certificate | **Not a code issue — Vercel domain config** | `itzdigital.co` itself has a valid Let's Encrypt cert and correct SNI routing. `www.itzdigital.co` resolves and reaches Vercel, but the cert served for that hostname only covers the apex (`CN=itzdigital.co`, no `www` in the SAN list) — a real, live certificate mismatch. Fix: add `www.itzdigital.co` as a domain on the Vercel project and set it to redirect to the apex (or vice versa); Vercel provisions the cert automatically once the domain is actually attached. Nothing in this repo can fix a domain that was never added in the dashboard. |
+| 2 | Server SNI support | **Same root cause as #1** | Vercel's edge is SNI-based for every domain it serves; the apex domain proves this works. The `www` failure above is a missing-domain problem, not an SNI capability problem. |
+| 3 | Click depth (711 pages) | **Fixed** | Confirmed: 596 of 682 sitemap URLs (mostly blog posts) were unreachable by any internal link path a crawler would actually follow — `/blog`'s only path to later posts was 51 pages of `?page=N` pagination. Added `/sitemap` (§ below), linked from the footer on every page. Post-fix crawl: max depth 2, 0 pages unreached. |
+| 4 | Internal link count (22 pages, 1 incoming link) | **Fixed at the root** | The real number was worse: 573 pages had **zero** incoming internal links, not 22 with just one. Same fix as #3 — every page now has at least the `/sitemap` link; most posts also pick up 1-2 more from `relatedPosts()`. |
+| 5 | Broken images | **Not currently reproducible** | 0 broken `<img>`/`next/image` sources found across all 691 pages in a live crawl. Likely already resolved by the WordPress-image migration done earlier (posts now serve local `/images/blog/*.webp`, not the old `itzdigital.co/wp-content/uploads` URLs). |
+| 6 | 52 broken internal links | **Not currently reproducible** | 0 internal links resolving to anything but 200 across all 691 pages. |
+| 7 | 11 pages with 4xx | **Not currently reproducible** | 0 non-200 responses across every sitemap URL. |
+| 8 | Title tag length (155 pages) | **Fixed** | Confirmed exactly: 155 posts had a `seoTitle`/`title` over 61 characters. Rewrote all 155 via Gemini (`≤58 chars`, keyword preserved, no invented claims) — verified 0 remain over the limit. Separately found the rendered `<title>` tag was **also** picking up the site's `%s | ITZ Digital` template on every post, pushing hundreds of otherwise-fine titles past 60 in practice; posts now use `title: { absolute }` to opt out of that suffix (hub pages like Services and Pricing keep it). |
+| 9 | Unnecessary redirects (same source/destination) | **Not currently reproducible** | All 642 rules in `next.config.mjs`'s `redirects()` checked programmatically: 0 self-redirects, 0 chains, 0 duplicate sources. If this is still showing in a live crawl, it's coming from a Vercel-dashboard-level redirect rule outside this repo, which isn't visible here. |
+| 10 | Multiple H1 tags (23 pages) | **Fixed** | Confirmed exactly: 23 AI-generated posts had their title duplicated as a literal `<h1>` inside the body content, on top of the one `PageHero` already renders. Stripped the redundant one from all 23. Verified 0 pages (of 691) now have anything but exactly one `<h1>`. |
+| 11 | Marketing Agencies industry vertical | **Added** | New 7th industry (`src/lib/industries.ts`), framed as white-label fulfillment for agencies — 3 sub-verticals (White-Label SEO, White-Label PPC, White-Label Web Design), full context/perks/FAQs, 7 new images. Every "five/six industries" reference across the site (nav, homepage, about, who-we-serve) updated to seven. |
+| 12 | Automated content creation | **Already built (§7, §12, §13, §14)** | The daily-content pipeline, `/admin` Content Studio, Sanity Studio sync, and the "Generate with AI" button were all built in earlier rounds and re-verified working here. |
+
+### New in this round
+
+- **`/sitemap`** (`src/app/sitemap/page.tsx`) — human-readable index of every
+  page, grouped by section and (for the blog) by category. Linked from the
+  footer's bottom bar next to Terms & Conditions.
+- **Four new services**: Cold Outreach, Cold Calling, Cold Email, Social
+  Media Management (`src/lib/services.ts`, `src/lib/service-content.ts`, new
+  icons in `public/images/icons/`). Wired into a new "Outbound" nav column
+  and the "Growth" column; footer gets two of the four.
+- **Contact-form notifications now go to `info@itzontarget.com`**
+  (`src/lib/email.ts`'s default; `CONTACT_NOTIFY_TO` still overrides it).
+
+### Verification method
+
+`node` scripts (not committed — one-off checks, see the PR/commit this
+section shipped in if you need to re-run them) that: read `/sitemap.xml` for
+the true URL list, fetched every URL against a local production server,
+extracted every internal `href`/`img src`, and checked each against a live
+HEAD request. Re-run anytime against a running `next start` to confirm this
+section's numbers still hold.

@@ -8,21 +8,29 @@
  *
  * Re-runnable: rows are keyed by slug (derived from the `Link` column), so
  * importing an updated export merges in new rows and leaves the status of
- * rows already in the queue (pending/published) untouched.
+ * rows already in the queue (pending/published) untouched. The one exception
+ * is `internalLinks`: a row that already exists but has none yet (queue rows
+ * imported before this field existed) gets it backfilled from the CSV.
  *
  * Expected columns (matched by exact header name — this is a fixed export
  * format, not a loose user upload like the /admin queue):
  *   PAGE TITLE, Vertical, Services, Blog Topic, Launch Date, Link,
- *   Relevant Keywords, Description
+ *   Relevant Keywords, Description, Internal Links
  *
  * Launch Date is `DD-Mon-YYYY` (e.g. "01-Sep-2026"). Link is the full
  * intended URL (e.g. https://itzdigital.co/blog/<slug>) — the slug is taken
  * from its last path segment so every planned page keeps the exact URL the
  * roadmap already committed to (other rows' Internal Links reference these).
+ * Internal Links is a comma-separated list of the full URLs the client's plan
+ * wants this specific post to link to — generation resolves each against the
+ * site's real routes and drops anything that isn't (a typo, a not-yet-
+ * published sibling) rather than ever letting the model link to a dead page.
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { parseInternalLinksCell } from './lib/internal-links.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const QUEUE_PATH = resolve(ROOT, 'content-queue/roadmap/queue.json');
@@ -121,6 +129,7 @@ function main() {
     link: col('Link'),
     keywords: col('Relevant Keywords'),
     description: col('Description'),
+    internalLinks: col('Internal Links'),
   };
 
   const existing = existsSync(QUEUE_PATH)
@@ -128,6 +137,7 @@ function main() {
     : new Map();
 
   let added = 0;
+  let backfilled = 0;
   let skippedBadDate = 0;
   let skippedNoSlug = 0;
 
@@ -136,10 +146,20 @@ function main() {
     const link = row[idx.link]?.trim();
     const launchDate = parseLaunchDate(row[idx.launchDate]);
     const slug = link ? slugFromLink(link) : null;
+    const internalLinks = parseInternalLinksCell(row[idx.internalLinks]);
 
     if (!title || !slug) { skippedNoSlug += 1; continue; }
     if (!launchDate) { skippedBadDate += 1; continue; }
-    if (existing.has(slug)) continue; // already imported — leave its status alone
+    if (existing.has(slug)) {
+      // Already imported — leave status/dates alone, but an earlier import
+      // (before this column was read) may have left internalLinks unset.
+      const row2 = existing.get(slug);
+      if (!row2.internalLinks && internalLinks.length > 0) {
+        row2.internalLinks = internalLinks;
+        backfilled += 1;
+      }
+      continue;
+    }
 
     const service = row[idx.services]?.trim();
     const category = SERVICE_TO_CATEGORY[service] ?? 'Digital Marketing';
@@ -160,6 +180,7 @@ function main() {
       category,
       keyword: title,
       angle: angleParts.join(' '),
+      internalLinks,
       launchDate,
       status: 'pending',
       publishedDate: null,
@@ -173,6 +194,7 @@ function main() {
   writeFileSync(QUEUE_PATH, `${JSON.stringify(queue, null, 2)}\n`);
 
   console.log(`Imported ${added} new row(s) into ${QUEUE_PATH}`);
+  if (backfilled) console.log(`  backfilled internalLinks onto ${backfilled} existing row(s)`);
   if (skippedBadDate) console.log(`  skipped ${skippedBadDate} row(s) with an unparseable Launch Date`);
   if (skippedNoSlug) console.log(`  skipped ${skippedNoSlug} row(s) missing a title or Link`);
   console.log(`Queue now has ${queue.length} row(s) total ` +

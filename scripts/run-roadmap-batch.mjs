@@ -34,9 +34,11 @@ import {
   describeError,
   makeGeminiProvider,
   postPrompt,
+  readServices,
   readSite,
   systemPrompt,
 } from './lib/content-gen.mjs';
+import { buildLinkManifest, resolveInternalLinks } from './lib/internal-links.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const QUEUE_PATH = resolve(ROOT, 'content-queue/roadmap/queue.json');
@@ -120,6 +122,10 @@ async function main() {
   const system = systemPrompt(site);
   const existingSlugs = new Set(readJson(POSTS_INDEX).map((p) => p.slug));
   const provider = await makeGeminiProvider(opts);
+  // Built once up front, like `system` above — a sibling row that finishes
+  // earlier in this same batch won't be linkable until the next run, but
+  // that only ever means fewer links, never a link to a page that isn't live.
+  const linkManifest = buildLinkManifest(ROOT, readServices(ROOT));
 
   const generated = [];
   const failed = [];
@@ -145,9 +151,12 @@ async function main() {
         return;
       }
 
+      const internalLinks = resolveInternalLinks(row.internalLinks ?? [], linkManifest, {
+        selfPath: `/${row.slug}`,
+      });
       const { data } = await provider.generate({
         system,
-        user: postPrompt({ keyword: row.keyword, category: row.category, angle: row.angle }),
+        user: postPrompt({ keyword: row.keyword, category: row.category, angle: row.angle, internalLinks }),
         schema: POST_SCHEMA,
         schemaName: 'blog_post',
       });
@@ -159,6 +168,11 @@ async function main() {
 
       const errors = validatePost(data);
       if (errors.length) throw new Error(`validation failed: ${errors.join('; ')}`);
+
+      const linkedCount = internalLinks.filter((l) => data.content.includes(`href="${l.path}"`)).length;
+      if (internalLinks.length > 0 && linkedCount < internalLinks.length) {
+        console.warn(`  ⚠ ${label}: used ${linkedCount}/${internalLinks.length} requested internal links`);
+      }
 
       const post = {
         slug,

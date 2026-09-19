@@ -12,8 +12,9 @@ import {
   isGithubConfigured,
   putFile,
 } from '@/lib/admin/github';
-import { DEFAULT_MODEL, describeError, makeGeminiProvider, postPrompt, readSite, systemPrompt } from '../../../../../scripts/lib/content-gen.mjs';
+import { DEFAULT_MODEL, describeError, makeGeminiProvider, postPrompt, readServices, readSite, systemPrompt } from '../../../../../scripts/lib/content-gen.mjs';
 import { generateImage, promptFor } from '../../../../../scripts/lib/image-gen.mjs';
+import { buildLinkManifest, resolveInternalLinks } from '../../../../../scripts/lib/internal-links.mjs';
 
 /** See the two .mjs modules' own JSDoc for the full shape — pinning down only what this route uses. */
 type Provider = {
@@ -37,6 +38,9 @@ type QueueRow = {
   category: string;
   keyword: string;
   angle: string;
+  /** Raw URLs from the CSV's Internal Links column — resolved against the
+   *  live manifest at generation time, not trusted as-is (see below). */
+  internalLinks?: string[];
   launchDate: string;
   status: 'pending' | 'published';
   publishedDate: string | null;
@@ -119,15 +123,23 @@ export async function GET(request: Request) {
   const provider = (await makeGeminiProvider({ model: DEFAULT_MODEL.gemini })) as Provider;
   const ai = new GoogleGenAI({ apiKey: geminiKey });
 
+  // Built once from this deployment's own filesystem (same pattern readSite/
+  // readServices already use) — may lag a post merged in the last few
+  // minutes, but never offers a link to a page that doesn't actually exist.
+  const linkManifest = buildLinkManifest(process.cwd(), readServices(process.cwd()));
+
   // ── Generate concurrently (the slow part: one Gemini text + one Gemini
   // image call per row) — failures here don't touch GitHub at all, so a
   // failed row is simply retried automatically on tomorrow's run.
   const results = await Promise.all(
     due.map(async (row) => {
       try {
+        const internalLinks = resolveInternalLinks(row.internalLinks ?? [], linkManifest, {
+          selfPath: `/${row.slug}`,
+        });
         const { data } = await provider.generate({
           system,
-          user: postPrompt({ keyword: row.keyword, category: row.category, angle: row.angle }),
+          user: postPrompt({ keyword: row.keyword, category: row.category, angle: row.angle, internalLinks }),
           schema: POST_SCHEMA,
           schemaName: 'blog_post',
         });
@@ -140,6 +152,13 @@ export async function GET(request: Request) {
 
         const errors = validatePost(data);
         if (errors.length) throw new Error(`validation failed: ${errors.join('; ')}`);
+
+        const linkedCount = internalLinks.filter((l) => data.content.includes(`href="${l.path}"`)).length;
+        if (internalLinks.length > 0 && linkedCount < internalLinks.length) {
+          console.warn(
+            `[roadmap-cron] ${slug}: used ${linkedCount}/${internalLinks.length} requested internal links`,
+          );
+        }
 
         const post = {
           slug,

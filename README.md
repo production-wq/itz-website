@@ -1043,3 +1043,26 @@ cron ever needs debugging. It is **not** wired to a `schedule` trigger, so it
 never runs on its own and never competes with the Vercel cron. It needs its
 own `GEMINI_API_KEY` / `RESEND_API_KEY` as GitHub Actions repository secrets
 only if you actually use it.
+
+**Internal links.** The roadmap CSV's `Internal Links` column is the client's
+own pre-planned linking map (4-5 URLs per row — home, the relevant service,
+and 2-3 related posts). The first 80-post catch-up batch shipped without
+reading this column at all, so every one of those posts landed with zero
+internal links; `scripts/import-roadmap-csv.mjs` now carries it into
+`queue.json` as `internalLinks` (backfilled onto every existing row, not just
+new ones), and `scripts/lib/internal-links.mjs` resolves each row's URLs
+against a manifest of every real route on the site (built from
+`posts-index.json` plus a regex read of `services.ts`/`industries.ts`/
+`case-studies.ts` — the same text-scanning trick `content-gen.mjs`'s
+`readServices()` already uses, since these scripts run outside Next's own
+TypeScript loader) before ever handing them to the model. Anything that
+doesn't resolve — a typo'd slug, a sibling post the roadmap hasn't generated
+yet — is silently dropped rather than shipped as a dead link; `postPrompt()`
+then instructs the model to weave whatever's left into the article as
+contextual `<a href>`s. Both `src/app/api/cron/roadmap/route.ts` and
+`scripts/run-roadmap-batch.mjs` build the manifest once per run and log a
+warning (non-fatal) if a generated post used fewer links than it was given.
+The 80 already-published posts from that first batch were backfilled
+directly — a `<h2>Related Resources</h2>` list appended to each one's stored
+`content`, using the same resolved-against-real-routes links — rather than
+regenerated, so the rest of each article is untouched.

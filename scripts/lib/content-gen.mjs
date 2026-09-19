@@ -116,10 +116,30 @@ export const BLOG_CATEGORIES = [
   'Real Estate Agent',
 ];
 
-export function postPrompt({ keyword, category, angle }) {
+/**
+ * `internalLinks`, when passed, is a list of `{ path, label }` pairs —
+ * already resolved and validated against the live site (see
+ * scripts/lib/internal-links.mjs), so every entry is a real, currently-live
+ * page. Optional: callers with no pre-planned links (the /admin queue, the
+ * Studio button) simply omit it.
+ *
+ * @param {{ keyword: string, category?: string, angle?: string, internalLinks?: { path: string, label: string }[] }} opts
+ */
+export function postPrompt({ keyword, category, angle, internalLinks = [] }) {
+  const linksBlock = internalLinks?.length
+    ? `\n\nINTERNAL LINKS (required — these pages exist right now; do not link to any
+other page or invent a URL):\n${internalLinks
+        .map((l) => `- ${l.path} — ${l.label}`)
+        .join('\n')}\nWork every one of these into the article as a natural <a href="..."> in
+running prose, with descriptive anchor text that fits the sentence — never a
+bare "click here" and never the raw label pasted in verbatim. Spread them
+across different sections rather than clustering them in one paragraph, and
+use each URL exactly once.`
+    : '';
+
   return `Write a blog post targeting the keyword: "${keyword}"${
     category ? `\nCategory: ${category}` : ''
-  }${angle ? `\n\nEDITOR'S BRIEF (from the content queue — follow it):\n${angle}` : ''}
+  }${angle ? `\n\nEDITOR'S BRIEF (from the content queue — follow it):\n${angle}` : ''}${linksBlock}
 
 Requirements:
 - At least 1,300 words of body content (the floor is 1,200 — clear it comfortably).

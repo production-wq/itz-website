@@ -158,7 +158,10 @@ export async function GET(request: Request) {
         const post = {
           slug,
           title: row.title,
-          date: new Date().toISOString(),
+          // The row's own planned launch date, not "now" — keeps published
+          // dates matching what the roadmap actually planned even if this
+          // run is catching up on more than one day at once.
+          date: new Date(row.launchDate).toISOString(),
           excerpt: data.excerpt,
           categories: data.categories,
           tags: data.tags,

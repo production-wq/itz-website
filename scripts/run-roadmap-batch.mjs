@@ -183,7 +183,11 @@ async function main() {
       const post = {
         slug,
         title: row.title,
-        date: new Date().toISOString(),
+        // The row's own planned launch date, not "now" — a catch-up run that
+        // processes a week of backlog in one sitting would otherwise stamp
+        // every post with today's date, clustering them instead of spreading
+        // them across the days they were actually meant to publish.
+        date: new Date(row.launchDate).toISOString(),
         excerpt: data.excerpt,
         categories: data.categories,
         tags: data.tags,

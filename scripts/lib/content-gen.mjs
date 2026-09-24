@@ -13,11 +13,11 @@ import { join } from 'node:path';
 
 export const DEFAULT_MODEL = {
   claude: 'claude-opus-5',
-  // 'gemini-2.5-pro' still shows up in --list-models but 404s on an actual
-  // generateContent call ("no longer available to new users") — this is what
-  // Google's own error message names as the replacement. Model IDs move;
-  // re-run --list-models if this one goes stale too.
-  gemini: 'gemini-3.1-pro-preview',
+  // Flash tier, not Pro — moderate cost for a queue that runs unattended
+  // every day, forever. `-latest` tracks Google's current recommended Flash
+  // model rather than a dated snapshot, so this doesn't need re-pinning every
+  // time the lineup rotates (see the roadmap cron's daily-spend concerns).
+  gemini: 'gemini-flash-latest',
 };
 
 // ── Site context ────────────────────────────────────────────────────────────

@@ -2,16 +2,8 @@ import { NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 
 import { POST_SCHEMA, readingTime, slugify, validatePost } from '@/lib/content-schemas.mjs';
-import { isEmailConfigured, sendEmail } from '@/lib/email';
-import {
-  adminConfig,
-  createPullRequest,
-  ensureBranch,
-  findOpenPullForBranch,
-  getFile,
-  isGithubConfigured,
-  putFile,
-} from '@/lib/admin/github';
+import { adminConfig, getFile, isGithubConfigured, putFile } from '@/lib/admin/github';
+import { isSlackConfigured, sendSlackMessage } from '@/lib/slack';
 import { DEFAULT_MODEL, describeError, makeGeminiProvider, postPrompt, readServices, readSite, systemPrompt } from '../../../../../scripts/lib/content-gen.mjs';
 import { generateImage, promptFor } from '../../../../../scripts/lib/image-gen.mjs';
 import { buildLinkManifest, resolveInternalLinks } from '../../../../../scripts/lib/internal-links.mjs';
@@ -58,7 +50,6 @@ export const maxDuration = 300;
 
 const DAILY_LIMIT = 4;
 const SITE_ORIGIN = 'https://itzdigital.co';
-const NOTIFY_TO = 'production@builtrightdigital.com';
 const QUEUE_PATH = 'content-queue/roadmap/queue.json';
 const POSTS_INDEX_PATH = 'src/content/posts-index.json';
 const POST_IMAGES_PATH = 'src/content/post-images.json';
@@ -66,19 +57,23 @@ const POST_IMAGES_PATH = 'src/content/post-images.json';
 /**
  * Vercel Cron entry point for the client's dated SEO content roadmap (see
  * README §16). Runs entirely on Vercel — no GitHub Actions secrets required
- * — because everything it needs (GITHUB_API_TOKEN, GEMINI_API_KEY,
- * RESEND_API_KEY) is already a Vercel env var for the existing /admin and
- * Studio pipelines. Reads content-queue/roadmap/queue.json straight off the
- * base branch via the GitHub API, generates whichever rows are due (Gemini,
- * forced — this queue is Gemini-only), opens a PR for the same
- * /admin/review gate every other content pipeline in this repo uses, and
- * emails production@builtrightdigital.com with links once the PR is ready.
+ * — because everything it needs (GITHUB_API_TOKEN, GEMINI_API_KEY) is
+ * already a Vercel env var for the existing /admin and Studio pipelines.
+ * Reads content-queue/roadmap/queue.json straight off the base branch via
+ * the GitHub API, generates whichever rows are due (Gemini, forced — this
+ * queue is Gemini-only), and commits each generated post straight to the
+ * base branch — no review PR, by request: this pipeline is meant to publish
+ * unattended, every day, with nobody checking a queue. `validatePost()`
+ * still gates each row (word count, required headings, FAQ shape) before
+ * anything is written, and a bad row never blocks the rest of the batch.
+ * Posts to Slack when SLACK_WEBHOOK_URL is set; silently skips notification
+ * otherwise (see src/lib/slack.ts) — there's no other required dependency.
  *
  * Configured in vercel.json. Auth: Vercel sends
  * `Authorization: Bearer $CRON_SECRET` on cron-triggered requests when
  * CRON_SECRET is set — required here since this route has real side effects
- * (API spend, a commit, an email) and must not be triggerable by anyone who
- * finds the URL.
+ * (API spend and a direct commit to the live site) and must not be
+ * triggerable by anyone who finds the URL.
  */
 export async function GET(request: Request) {
   const cronSecret = process.env.CRON_SECRET;
@@ -203,14 +198,13 @@ export async function GET(request: Request) {
     return NextResponse.json({ ok: true, generated: [], failed: failed.map((f) => f.row.slug) });
   }
 
-  // ── Commit everything to one branch for the day, then open a PR ─────────
-  // A per-row write failure (e.g. this exact file already exists on the
-  // branch — possible if this route is ever invoked twice before the day's
-  // PR merges) demotes that row to `failed` rather than aborting the whole
-  // batch; every other row still lands and the email/PR steps still run.
-  const branch = `content/roadmap-${today}`;
-  await ensureBranch(branch);
-
+  // ── Commit everything straight to the base branch ───────────────────────
+  // A per-row write failure (e.g. this exact file already exists — possible
+  // if this route is ever invoked twice for the same row) demotes that row
+  // to `failed` rather than aborting the whole batch; every other row still
+  // lands and the notify step still runs. Each `putFile` is its own commit
+  // (and, on the production branch, its own deploy) — accepted trade-off for
+  // not needing the Git Data API's multi-file-atomic-commit machinery here.
   const ok: typeof generatedOk = [];
   for (const r of generatedOk) {
     try {
@@ -218,7 +212,7 @@ export async function GET(request: Request) {
         path: `src/content/posts/${r.post!.slug}.json`,
         content: JSON.stringify(r.post),
         message: `Content: ${r.post!.slug}`,
-        branch,
+        branch: baseBranch,
       });
       if (r.image) {
         await putFile({
@@ -226,7 +220,7 @@ export async function GET(request: Request) {
           content: r.image.toString('base64'),
           encoding: 'base64',
           message: `Image: ${r.post!.slug}`,
-          branch,
+          branch: baseBranch,
         });
       }
       ok.push(r);
@@ -239,7 +233,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ ok: true, generated: [], failed: failed.map((f) => f.row.slug) });
   }
 
-  const indexFile = await getFile(POSTS_INDEX_PATH, branch);
+  const indexFile = await getFile(POSTS_INDEX_PATH, baseBranch);
   const index = indexFile ? JSON.parse(indexFile.content) : [];
   for (const r of ok) {
     const { content: _omit, ...summary } = r.post!;
@@ -253,13 +247,13 @@ export async function GET(request: Request) {
     path: POSTS_INDEX_PATH,
     content: `${JSON.stringify(index, null, 2)}\n`,
     message: `Content: update posts index (${ok.length} new)`,
-    branch,
+    branch: baseBranch,
     sha: indexFile?.sha,
   });
 
   const imagesWithFile = ok.filter((r) => r.image);
   if (imagesWithFile.length > 0) {
-    const mapFile = await getFile(POST_IMAGES_PATH, branch);
+    const mapFile = await getFile(POST_IMAGES_PATH, baseBranch);
     const map = mapFile ? JSON.parse(mapFile.content) : {};
     for (const r of imagesWithFile) {
       map[r.post!.slug] = { image: `/images/blog/${r.post!.slug}.webp`, alt: r.post!.title };
@@ -269,15 +263,15 @@ export async function GET(request: Request) {
       path: POST_IMAGES_PATH,
       content: `${JSON.stringify(sorted, null, 2)}\n`,
       message: `Content: update post image map (${imagesWithFile.length} new)`,
-      branch,
+      branch: baseBranch,
       sha: mapFile?.sha,
     });
   }
 
-  const queueFileOnBranch = await getFile(QUEUE_PATH, branch);
-  const queueOnBranch: QueueRow[] = queueFileOnBranch ? JSON.parse(queueFileOnBranch.content) : queue;
+  const queueFileNow = await getFile(QUEUE_PATH, baseBranch);
+  const queueNow: QueueRow[] = queueFileNow ? JSON.parse(queueFileNow.content) : queue;
   for (const r of ok) {
-    const target = queueOnBranch.find((q) => q.slug === r.row.slug);
+    const target = queueNow.find((q) => q.slug === r.row.slug);
     if (target) {
       target.status = 'published';
       target.publishedDate = today;
@@ -286,64 +280,28 @@ export async function GET(request: Request) {
   }
   await putFile({
     path: QUEUE_PATH,
-    content: `${JSON.stringify(queueOnBranch, null, 2)}\n`,
+    content: `${JSON.stringify(queueNow, null, 2)}\n`,
     message: `Content: mark ${ok.length} roadmap row(s) published`,
-    branch,
-    sha: queueFileOnBranch?.sha,
+    branch: baseBranch,
+    sha: queueFileNow?.sha,
   });
 
-  // ── Open (or reuse) the review PR ────────────────────────────────────────
-  let prUrl: string | null = null;
-  try {
-    const existing = await findOpenPullForBranch(branch);
-    if (existing) {
-      prUrl = existing.html_url;
-    } else {
-      const pr = await createPullRequest({
-        head: branch,
-        title: `Roadmap content batch — ${ok.length} page(s) (${today})`,
-        body:
-          `Generated automatically by the roadmap-content cron, from \`${QUEUE_PATH}\`.\n\n` +
-          `- **Provider:** gemini (forced)\n` +
-          `- **Rows:** ${ok.map((r) => r.post!.slug).join(', ')}\n\n` +
-          `Review each item at \`/admin/review\` — merging this PR (or **Approve & publish** there) deploys it.`,
-      });
-      prUrl = pr.html_url;
-    }
-  } catch (err) {
-    console.error(`[roadmap-cron] PR step failed: ${describeError(err)}`);
-  }
-
   // ── Notify ────────────────────────────────────────────────────────────
-  if (isEmailConfigured()) {
-    const links = ok.map((r) => `<li><a href="${SITE_ORIGIN}/${r.post!.slug}">${r.post!.title}</a></li>`).join('\n');
-    const failuresHtml = failed.length
-      ? `<h2>Failed (${failed.length})</h2><ul>${failed.map((f) => `<li>${f.row.title} — ${f.error}</li>`).join('\n')}</ul>`
-      : '';
-    await sendEmail({
-      to: NOTIFY_TO,
-      subject: `ITZ Digital content: ${ok.length} page(s) ready for review (${today})`,
-      html: `
-        <p>Roadmap content batch for ${today} — ${ok.length} page(s) generated, awaiting review.</p>
-        <h2>Ready for review (${ok.length})</h2>
-        <ul>${links}</ul>
-        ${failuresHtml}
-        ${prUrl ? `<p>Review and publish: <a href="${prUrl}">${prUrl}</a></p>` : ''}
-      `.trim(),
-      text: [
-        `Roadmap content batch for ${today} — ${ok.length} page(s) generated, awaiting review.`,
-        '',
-        ...ok.map((r) => `- ${r.post!.title} — ${SITE_ORIGIN}/${r.post!.slug}`),
-        ...(failed.length ? ['', 'Failed:', ...failed.map((f) => `- ${f.row.title} — ${f.error}`)] : []),
-        ...(prUrl ? ['', `Review and publish: ${prUrl}`] : []),
-      ].join('\n'),
-    });
+  if (isSlackConfigured()) {
+    const lines = [
+      `*ITZ Digital roadmap content — ${today}*`,
+      `Published ${ok.length} page(s) directly to the live site:`,
+      ...ok.map((r) => `• <${SITE_ORIGIN}/${r.post!.slug}|${r.post!.title}>`),
+      ...(failed.length
+        ? ['', `Failed (${failed.length}):`, ...failed.map((f) => `• ${f.row.title} — ${f.error}`)]
+        : []),
+    ];
+    await sendSlackMessage(lines.join('\n'));
   }
 
   return NextResponse.json({
     ok: true,
-    generated: ok.map((r) => ({ slug: r.post!.slug, title: r.post!.title })),
+    generated: ok.map((r) => ({ slug: r.post!.slug, title: r.post!.title, url: `${SITE_ORIGIN}/${r.post!.slug}` })),
     failed: failed.map((f) => ({ slug: f.row.slug, error: f.error })),
-    pr: prUrl,
   });
 }

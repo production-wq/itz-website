@@ -1012,28 +1012,43 @@ pace the client asked for — and generates them concurrently with Gemini
 (this queue is Gemini-only by requirement, unlike §7/§12's `--provider`
 choice). It reads and writes `content-queue/roadmap/queue.json` straight off
 GitHub via the REST API (`src/lib/admin/github.ts` — the same client
-`/admin` already uses), commits each new post + its featured image to a
-same-day branch, and opens a PR labeled `automated-content` — **the exact
-same `/admin/review` gate as every other content pipeline in this repo.**
-Nothing here auto-merges; a human still approves each batch before it goes
-live. Once the PR is open, it emails **production@builtrightdigital.com**
-(via `src/lib/email.ts`, same as every other transactional email on this
-site) with the title and link of every page in the batch.
+`/admin` already uses) and commits each new post + its featured image
+**straight to the base branch — no review PR.** That's by explicit request:
+this pipeline is meant to run completely unattended, with nobody checking a
+queue. `validatePost()` (word count, required headings, FAQ shape) still
+gates every row before anything is written, and one bad row never blocks the
+rest of the batch — it's just marked `failed` and retried automatically the
+next time the cron runs, since its queue row stays `pending`. Once a batch
+lands, it posts a summary to Slack if `SLACK_WEBHOOK_URL` is set
+(`src/lib/slack.ts` — a plain Incoming Webhook, no app, no OAuth); if it
+isn't set, the run still publishes, it just doesn't notify anyone.
 
 This runs entirely inside a Vercel serverless function — deliberately, so it
 needs **no GitHub Actions secrets at all**. It reuses whatever
-`GITHUB_API_TOKEN`, `GEMINI_API_KEY` and `RESEND_API_KEY` are *already* set
-as Vercel env vars for `/admin` (§12) and the Studio "Generate with AI"
-button (§14). The one new thing to add is `CRON_SECRET` — see below.
+`GITHUB_API_TOKEN` and `GEMINI_API_KEY` are *already* set as Vercel env vars
+for `/admin` (§12) and the Studio "Generate with AI" button (§14). The two
+new things to add are `CRON_SECRET` and, optionally, `SLACK_WEBHOOK_URL` —
+see below. `RESEND_API_KEY` is **not** needed by this route anymore (it's
+still required separately for the contact form — see §email/`.env.example`).
 
 **Required Vercel env vars** (Project → Settings → Environment Variables):
 
 | Variable | Already set? | Notes |
 | - | - | - |
-| `GITHUB_API_TOKEN`, `GITHUB_REPO`, `GITHUB_BASE_BRANCH` | Yes — required for `/admin` (§12) to work at all | No action needed |
-| `GEMINI_API_KEY` | Likely — used by the Studio "Generate with AI" button (§14) | Check it's there |
-| `RESEND_API_KEY` | Yes, per the client | No action needed |
+| `GITHUB_API_TOKEN`, `GITHUB_REPO`, `GITHUB_BASE_BRANCH` | Yes — required for `/admin` (§12) to work at all | `GITHUB_BASE_BRANCH` must be `redesign-refresh` — confirm it matches Vercel's actual Production Branch, or generated posts land on a branch nobody deploys. |
+| `GEMINI_API_KEY` | Likely — used by the Studio "Generate with AI" button (§14) | Check it's there. Keep the model in `scripts/lib/content-gen.mjs`'s `DEFAULT_MODEL.gemini` on a Flash-tier model (not Pro) — this queue runs unattended every day, and Flash is the moderate-cost tier. |
 | `CRON_SECRET` | **No — add this one** | Any long random string. Vercel sends it back as `Authorization: Bearer <value>` on every cron-triggered request automatically once it's set; the route checks it and 503s without it. Steps: Vercel dashboard → your project → **Settings** → **Environment Variables** → **Add New** → Key `CRON_SECRET`, Value: any random string (e.g. generate one with `openssl rand -hex 32`) → save for Production → redeploy. |
+| `SLACK_WEBHOOK_URL` | No — optional | Create at api.slack.com/apps → your app → **Incoming Webhooks** → **Add New Webhook to Workspace** → pick a channel → copy the URL it gives you → set it here. Skip this entirely and the pipeline still runs, just silently. |
+| `RESEND_API_KEY` | Yes, per the client | Used by the contact form only — this route no longer sends email. No action needed either way. |
+
+**After adding env vars, also check:** Vercel → your project → **Settings**
+→ **Cron Jobs** — confirm `/api/cron/roadmap` actually shows up there and is
+enabled (a fresh deploy is sometimes needed for a new `crons` entry in
+`vercel.json` to register). And check **Settings → General → your plan**:
+Hobby caps every function at 60 seconds no matter what `maxDuration` says in
+code, which a batch of 4 Gemini text+image generations can plausibly exceed
+— if the cron keeps silently producing nothing, that's the next thing to
+rule out (Pro removes the cap).
 
 **Manual / catch-up path.** `scripts/run-roadmap-batch.mjs` (with `--limit`
 or `--all-due`) and `.github/workflows/roadmap-content.yml` still exist as a
@@ -1062,7 +1077,8 @@ then instructs the model to weave whatever's left into the article as
 contextual `<a href>`s. Both `src/app/api/cron/roadmap/route.ts` and
 `scripts/run-roadmap-batch.mjs` build the manifest once per run and log a
 warning (non-fatal) if a generated post used fewer links than it was given.
-The 80 already-published posts from that first batch were backfilled
-directly — a `<h2>Related Resources</h2>` list appended to each one's stored
-`content`, using the same resolved-against-real-routes links — rather than
-regenerated, so the rest of each article is untouched.
+The 80 already-published posts from that first batch were backfilled by hand
+against the same resolved-against-real-routes link sets — each link wrapped
+around an existing phrase already in that post's own prose (in place, spread
+across different paragraphs) rather than a list appended to the end, and
+rather than regenerating the article — so the rest of each one is untouched.

@@ -31,6 +31,7 @@ import { fileURLToPath } from 'node:url';
 
 import { POST_SCHEMA, readingTime, slugify, validatePost } from '../src/lib/content-schemas.mjs';
 import {
+  DEFAULT_MODEL,
   describeError,
   makeGeminiProvider,
   postPrompt,
@@ -95,7 +96,12 @@ function writePost(post) {
 
 async function main() {
   const opts = parseArgs(process.argv.slice(2));
-  opts.model ??= 'gemini-3.1-pro-preview';
+  // Was hardcoded to gemini-3.1-pro-preview here, independent of
+  // content-gen.mjs's own DEFAULT_MODEL — the two silently drifted apart, so
+  // this script kept using the expensive Pro model even after DEFAULT_MODEL
+  // was moved to Flash. Deferring to DEFAULT_MODEL.gemini keeps both entry
+  // points (this script and the cron route) on the same model by construction.
+  opts.model ??= DEFAULT_MODEL.gemini;
 
   if (!existsSync(QUEUE_PATH)) {
     console.error(`No queue at ${QUEUE_PATH} — run scripts/import-roadmap-csv.mjs first.`);

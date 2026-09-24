@@ -198,7 +198,11 @@ export async function GET(request: Request) {
   }[];
 
   if (generatedOk.length === 0) {
-    return NextResponse.json({ ok: true, generated: [], failed: failed.map((f) => f.row.slug) });
+    return NextResponse.json({
+      ok: true,
+      generated: [],
+      failed: failed.map((f) => ({ slug: f.row.slug, error: f.error })),
+    });
   }
 
   // ── Commit everything straight to the base branch ───────────────────────
@@ -233,7 +237,11 @@ export async function GET(request: Request) {
   }
 
   if (ok.length === 0) {
-    return NextResponse.json({ ok: true, generated: [], failed: failed.map((f) => f.row.slug) });
+    return NextResponse.json({
+      ok: true,
+      generated: [],
+      failed: failed.map((f) => ({ slug: f.row.slug, error: f.error })),
+    });
   }
 
   const indexFile = await getFile(POSTS_INDEX_PATH, baseBranch);

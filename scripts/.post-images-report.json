@@ -3,404 +3,204 @@
   "fuzzyMatched": [],
   "unmatched": [
     {
-      "slug": "an-industry-analysis-of-urgent-care-web-design-pricing-and-value",
-      "title": "An Industry Analysis of Urgent Care Web Design Pricing and Value",
+      "slug": "how-much-does-massage-therapy-website-services-cost-pricing-and-roi-analysis",
+      "title": "How Much Does Massage Therapy Website Services Cost? Pricing and ROI Analysis",
+      "category": "Website Services"
+    },
+    {
+      "slug": "proven-hvac-website-services-blueprints-for-accelerating-growth",
+      "title": "Proven HVAC Website Services Blueprints for Accelerating Growth",
+      "category": "Website Services"
+    },
+    {
+      "slug": "how-to-optimize-kitchen-remodeler-website-services-for-high-roi-acquisition",
+      "title": "How to Optimize Kitchen Remodeler Website Services for High-ROI Acquisition",
+      "category": "Website Services"
+    },
+    {
+      "slug": "breaking-down-the-real-financial-cost-of-hvac-website-services",
+      "title": "Breaking Down the Real Financial Cost of HVAC Website Services",
+      "category": "Website Services"
+    },
+    {
+      "slug": "how-to-optimize-estate-planning-website-services-for-high-roi-acquisition",
+      "title": "How to Optimize Estate Planning Website Services for High-ROI Acquisition",
+      "category": "Website Services"
+    },
+    {
+      "slug": "how-much-does-estate-planning-website-services-cost-pricing-and-roi-analysis",
+      "title": "How Much Does Estate Planning Website Services Cost? Pricing and ROI Analysis",
+      "category": "Website Services"
+    },
+    {
+      "slug": "breaking-down-the-real-financial-cost-of-mechanic-website-services",
+      "title": "Breaking Down the Real Financial Cost of Mechanic Website Services",
+      "category": "Website Services"
+    },
+    {
+      "slug": "advanced-massage-therapy-website-services-techniques-to-dominate-the-market-space",
+      "title": "Advanced Massage Therapy Website Services Techniques to Dominate the Market Space",
+      "category": "Website Services"
+    },
+    {
+      "slug": "a-data-driven-breakdown-of-modern-locksmith-website-services-budgets",
+      "title": "A Data-Driven Breakdown of Modern Locksmith Website Services Budgets",
+      "category": "Website Services"
+    },
+    {
+      "slug": "proven-locksmith-website-services-blueprints-for-accelerating-growth",
+      "title": "Proven Locksmith Website Services Blueprints for Accelerating Growth",
+      "category": "Website Services"
+    },
+    {
+      "slug": "breaking-down-the-real-financial-cost-of-kitchen-remodeler-website-services",
+      "title": "Breaking Down the Real Financial Cost of Kitchen Remodeler Website Services",
+      "category": "Website Services"
+    },
+    {
+      "slug": "maximizing-conversion-rates-key-immigration-law-website-services-blueprints",
+      "title": "Maximizing Conversion Rates: Key Immigration Law Website Services Blueprints",
+      "category": "Website Services"
+    },
+    {
+      "slug": "how-much-does-immigration-law-website-services-cost-pricing-and-roi-analysis",
+      "title": "How Much Does Immigration Law Website Services Cost? Pricing and ROI Analysis",
+      "category": "Website Services"
+    },
+    {
+      "slug": "advanced-hvac-digital-market-agency-core-techniques-to-dominate-the-market-space",
+      "title": "Advanced HVAC Digital Market Agency Core Techniques to Dominate the Market Space",
+      "category": "Digital Marketing"
+    },
+    {
+      "slug": "a-data-driven-breakdown-of-modern-hvac-digital-market-agency-core-budgets",
+      "title": "A Data-Driven Breakdown of Modern HVAC Digital Market Agency Core Budgets",
+      "category": "Digital Marketing"
+    },
+    {
+      "slug": "maximizing-conversion-rates-key-electrician-digital-market-agency-core-blueprints",
+      "title": "Maximizing Conversion Rates: Key Electrician Digital Market Agency Core Blueprints",
+      "category": "Digital Marketing"
+    },
+    {
+      "slug": "a-data-driven-breakdown-of-modern-electrician-digital-market-agency-core-budgets",
+      "title": "A Data-Driven Breakdown of Modern Electrician Digital Market Agency Core Budgets",
+      "category": "Digital Marketing"
+    },
+    {
+      "slug": "advanced-electrician-website-services-techniques-to-dominate-the-market-space",
+      "title": "Advanced Electrician Website Services Techniques to Dominate the Market Space",
+      "category": "Website Services"
+    },
+    {
+      "slug": "how-to-optimize-dentists-website-services-for-high-roi-acquisition",
+      "title": "How to Optimize Dentists Website Services for High-ROI Acquisition",
+      "category": "Website Services"
+    },
+    {
+      "slug": "proven-divorce-lawyer-website-services-blueprints-for-accelerating-growth",
+      "title": "Proven Divorce Lawyer Website Services Blueprints for Accelerating Growth",
+      "category": "Website Services"
+    },
+    {
+      "slug": "how-much-does-divorce-lawyer-website-services-cost-pricing-and-roi-analysis",
+      "title": "How Much Does Divorce Lawyer Website Services Cost? Pricing and ROI Analysis",
+      "category": "Website Services"
+    },
+    {
+      "slug": "breaking-down-the-real-financial-cost-of-electrician-website-services",
+      "title": "Breaking Down the Real Financial Cost of Electrician Website Services",
+      "category": "Website Services"
+    },
+    {
+      "slug": "how-much-does-chiropractor-website-services-cost-pricing-and-roi-analysis",
+      "title": "How Much Does Chiropractor Website Services Cost? Pricing and ROI Analysis",
+      "category": "Website Services"
+    },
+    {
+      "slug": "advanced-chiropractor-website-services-techniques-to-dominate-the-market-space",
+      "title": "Advanced Chiropractor Website Services Techniques to Dominate the Market Space",
+      "category": "Website Services"
+    },
+    {
+      "slug": "a-data-driven-breakdown-of-modern-dentists-website-services-budgets",
+      "title": "A Data-Driven Breakdown of Modern Dentists Website Services Budgets",
+      "category": "Website Services"
+    },
+    {
+      "slug": "proven-car-wash-website-services-blueprints-for-accelerating-growth",
+      "title": "Proven Car Wash Website Services Blueprints for Accelerating Growth",
+      "category": "Website Services"
+    },
+    {
+      "slug": "how-to-optimize-bathroom-remodeler-digital-market-agency-core-for-high-roi-acquisition",
+      "title": "How to Optimize Bathroom Remodeler Digital Market Agency Core for High-ROI Acquisition",
+      "category": "Digital Marketing"
+    },
+    {
+      "slug": "a-data-driven-breakdown-of-modern-car-wash-website-services-budgets",
+      "title": "A Data-Driven Breakdown of Modern Car Wash Website Services Budgets",
+      "category": "Website Services"
+    },
+    {
+      "slug": "breaking-down-the-real-financial-cost-of-bathroom-remodeler-digital-market-agency-core",
+      "title": "Breaking Down the Real Financial Cost of Bathroom Remodeler Digital Market Agency Core",
+      "category": "Digital Marketing"
+    },
+    {
+      "slug": "maximizing-conversion-rates-key-bathroom-remodeler-website-services-blueprints",
+      "title": "Maximizing Conversion Rates: Key Bathroom Remodeler Website Services Blueprints",
+      "category": "Website Services"
+    },
+    {
+      "slug": "breaking-down-the-real-financial-cost-of-bankruptcy-lawyer-website-services",
+      "title": "Breaking Down the Real Financial Cost of Bankruptcy Lawyer Website Services",
+      "category": "Website Services"
+    },
+    {
+      "slug": "how-much-does-bathroom-remodeler-website-services-cost-pricing-and-roi-analysis",
+      "title": "How Much Does Bathroom Remodeler Website Services Cost? Pricing and ROI Analysis",
+      "category": "Website Services"
+    },
+    {
+      "slug": "proven-bankruptcy-lawyer-website-services-blueprints-for-accelerating-growth",
+      "title": "Proven Bankruptcy Lawyer Website Services Blueprints for Accelerating Growth",
+      "category": "Website Services"
+    },
+    {
+      "slug": "advanced-auto-windshields-website-services-techniques-to-dominate-the-market-space",
+      "title": "Advanced Auto Windshields Website Services Techniques to Dominate the Market Space",
+      "category": "Website Services"
+    },
+    {
+      "slug": "strategic-auto-repair-website-services-playbook-vetted-best-practices-for-high-conversion",
+      "title": "Strategic Auto Repair Website Services Playbook: Vetted Best Practices for High Conversion",
+      "category": "Website Services"
+    },
+    {
+      "slug": "how-much-does-auto-windshields-website-services-cost-pricing-and-roi-analysis",
+      "title": "How Much Does Auto Windshields Website Services Cost? Pricing and ROI Analysis",
+      "category": "Website Services"
+    },
+    {
+      "slug": "breaking-down-the-real-financial-cost-of-auto-repair-website-services",
+      "title": "Breaking Down the Real Financial Cost of Auto Repair Website Services",
+      "category": "Website Services"
+    },
+    {
+      "slug": "proven-auto-detailing-website-services-blueprints-for-accelerating-growth",
+      "title": "Proven Auto Detailing Website Services Blueprints for Accelerating Growth",
+      "category": "Website Services"
+    },
+    {
+      "slug": "the-tactical-guide-to-high-conversion-urgent-care-web-design",
+      "title": "The Tactical Guide to High-Conversion Urgent Care Web Design",
       "category": "Web Design"
     },
     {
-      "slug": "how-to-optimize-urgent-care-meta-ads-for-high-roi-acquisition",
-      "title": "How to Optimize Urgent Care Meta Ads for High-ROI Acquisition",
-      "category": "Meta Ads"
-    },
-    {
-      "slug": "breaking-down-the-real-financial-cost-of-urgent-care-meta-ads",
-      "title": "Breaking Down the Real Financial Cost of Urgent Care Meta Ads",
-      "category": "Meta Ads"
-    },
-    {
-      "slug": "advanced-urgent-care-google-ads-techniques-to-dominate-the-market-space",
-      "title": "Advanced Urgent Care Google Ads Techniques to Dominate the Market Space",
-      "category": "Google ads"
-    },
-    {
-      "slug": "proven-urgent-care-seo-blueprints-for-accelerating-growth",
-      "title": "Proven Urgent Care SEO Blueprints for Accelerating Growth",
-      "category": "SEO"
-    },
-    {
-      "slug": "how-much-does-urgent-care-google-ads-cost-pricing-and-roi-analysis",
-      "title": "How Much Does Urgent Care Google Ads Cost? Pricing and ROI Analysis",
-      "category": "Google ads"
-    },
-    {
-      "slug": "breaking-down-the-real-financial-cost-of-urgent-care-seo",
-      "title": "Breaking Down the Real Financial Cost of Urgent Care SEO",
-      "category": "SEO"
-    },
-    {
-      "slug": "how-much-does-tire-repair-web-design-cost-pricing-and-roi-analysis",
-      "title": "How Much Does Tire Repair Web Design Cost? Pricing and ROI Analysis",
-      "category": "Web Design"
-    },
-    {
-      "slug": "advanced-tire-repair-web-design-techniques-to-dominate-the-market-space",
-      "title": "Advanced Tire Repair Web Design Techniques to Dominate the Market Space",
-      "category": "Web Design"
-    },
-    {
-      "slug": "strategic-tire-repair-meta-ads-playbook-vetted-best-practices-for-high-conversion",
-      "title": "Strategic Tire Repair Meta Ads Playbook: Vetted Best Practices for High Conversion",
-      "category": "Meta Ads"
-    },
-    {
-      "slug": "the-comprehensive-guide-to-tire-repair-google-ads-costs",
-      "title": "The Comprehensive Guide to Tire Repair Google Ads Costs",
-      "category": "Google ads"
-    },
-    {
-      "slug": "breaking-down-the-real-financial-cost-of-tire-repair-meta-ads",
-      "title": "Breaking Down the Real Financial Cost of Tire Repair Meta Ads",
-      "category": "Meta Ads"
-    },
-    {
-      "slug": "advanced-tire-repair-google-ads-techniques-to-dominate-the-market-space",
-      "title": "Advanced Tire Repair Google Ads Techniques to Dominate the Market Space",
-      "category": "Google ads"
-    },
-    {
-      "slug": "proven-tire-repair-seo-blueprints-for-accelerating-growth",
-      "title": "Proven Tire Repair SEO Blueprints for Accelerating Growth",
-      "category": "SEO"
-    },
-    {
-      "slug": "strategic-roofing-web-design-playbook-vetted-best-practices-for-high-conversion",
-      "title": "Strategic Roofing Web Design Playbook: Vetted Best Practices for High Conversion",
-      "category": "Web Design"
-    },
-    {
-      "slug": "an-industry-analysis-of-tire-repair-seo-pricing-and-value",
-      "title": "An Industry Analysis of Tire Repair SEO Pricing and Value",
-      "category": "SEO"
-    },
-    {
-      "slug": "how-much-does-roofing-web-design-cost-pricing-and-roi-analysis",
-      "title": "How Much Does Roofing Web Design Cost? Pricing and ROI Analysis",
-      "category": "Web Design"
-    },
-    {
-      "slug": "the-ultimate-roofing-meta-ads-strategy-guide-to-win-high-intent-leads",
-      "title": "The Ultimate Roofing Meta Ads Strategy Guide to Win High-Intent Leads",
-      "category": "Meta Ads"
-    },
-    {
-      "slug": "the-comprehensive-guide-to-roofing-meta-ads-costs",
-      "title": "The Comprehensive Guide to Roofing Meta Ads Costs",
-      "category": "Meta Ads"
-    },
-    {
-      "slug": "the-tactical-guide-to-high-conversion-real-estate-agent-web-design",
-      "title": "The Tactical Guide to High-Conversion Real Estate Agent Web Design",
-      "category": "Web Design"
-    },
-    {
-      "slug": "strategic-real-estate-agent-meta-ads-playbook-vetted-best-practices-for-high-conversion",
-      "title": "Strategic Real Estate Agent Meta Ads Playbook: Vetted Best Practices for High Conversion",
-      "category": "Meta Ads"
-    },
-    {
-      "slug": "how-much-does-real-estate-agent-web-design-cost-pricing-and-roi-analysis",
-      "title": "How Much Does Real Estate Agent Web Design Cost? Pricing and ROI Analysis",
-      "category": "Web Design"
-    },
-    {
-      "slug": "breaking-down-the-real-financial-cost-of-real-estate-agent-meta-ads",
-      "title": "Breaking Down the Real Financial Cost of Real Estate Agent Meta Ads",
-      "category": "Meta Ads"
-    },
-    {
-      "slug": "the-comprehensive-guide-to-real-estate-agent-google-ads-costs",
-      "title": "The Comprehensive Guide to Real Estate Agent Google Ads Costs",
-      "category": "Google ads"
-    },
-    {
-      "slug": "advanced-real-estate-agent-google-ads-techniques-to-dominate-the-market-space",
-      "title": "Advanced Real Estate Agent Google Ads Techniques to Dominate the Market Space",
-      "category": "Google ads"
-    },
-    {
-      "slug": "proven-real-estate-agent-seo-blueprints-for-accelerating-growth",
-      "title": "Proven Real Estate Agent SEO Blueprints for Accelerating Growth",
-      "category": "SEO"
-    },
-    {
-      "slug": "how-much-does-real-estate-agent-seo-cost-pricing-and-roi-analysis",
-      "title": "How Much Does Real Estate Agent SEO Cost? Pricing and ROI Analysis",
-      "category": "SEO"
-    },
-    {
-      "slug": "strategic-property-management-web-design-playbook-vetted-best-practices-for-high-conversio",
-      "title": "Strategic Property Management Web Design Playbook: Vetted Best Practices for High Conversion",
-      "category": "Web Design"
-    },
-    {
-      "slug": "an-industry-analysis-of-property-management-web-design-pricing-and-value",
-      "title": "An Industry Analysis of Property Management Web Design Pricing and Value",
-      "category": "Web Design"
-    },
-    {
-      "slug": "breaking-down-the-real-financial-cost-of-property-management-meta-ads",
-      "title": "Breaking Down the Real Financial Cost of Property Management Meta Ads",
-      "category": "Meta Ads"
-    },
-    {
-      "slug": "advanced-property-management-meta-ads-techniques-to-dominate-the-market-space",
-      "title": "Advanced Property Management Meta Ads Techniques to Dominate the Market Space",
-      "category": "Meta Ads"
-    },
-    {
-      "slug": "the-ultimate-property-management-google-ads-strategy-guide-to-win-high-intent-leads",
-      "title": "The Ultimate Property Management Google Ads Strategy Guide to Win High-Intent Leads",
-      "category": "Google ads"
-    },
-    {
-      "slug": "budgeting-for-property-management-google-ads-expected-investments-and-strategy",
-      "title": "Budgeting for Property Management Google Ads: Expected Investments and Strategy",
-      "category": "Google ads"
-    },
-    {
-      "slug": "proven-property-management-seo-blueprints-for-accelerating-growth",
-      "title": "Proven Property Management SEO Blueprints for Accelerating Growth",
-      "category": "SEO"
-    },
-    {
-      "slug": "an-industry-analysis-of-property-management-seo-pricing-and-value",
-      "title": "An Industry Analysis of Property Management SEO Pricing and Value",
-      "category": "SEO"
-    },
-    {
-      "slug": "how-to-optimize-plumbers-web-design-for-high-roi-acquisition",
-      "title": "How to Optimize Plumbers Web Design for High-ROI Acquisition",
-      "category": "Web Design"
-    },
-    {
-      "slug": "breaking-down-the-real-financial-cost-of-plumbers-web-design",
-      "title": "Breaking Down the Real Financial Cost of Plumbers Web Design",
-      "category": "Web Design"
-    },
-    {
-      "slug": "maximizing-conversion-rates-key-plumbers-meta-ads-blueprints",
-      "title": "Maximizing Conversion Rates: Key Plumbers Meta Ads Blueprints",
-      "category": "Meta Ads"
-    },
-    {
-      "slug": "how-much-does-plumbers-meta-ads-cost-pricing-and-roi-analysis",
-      "title": "How Much Does Plumbers Meta Ads Cost? Pricing and ROI Analysis",
-      "category": "Meta Ads"
-    },
-    {
-      "slug": "a-data-driven-breakdown-of-modern-physical-therapy-web-design-budgets",
-      "title": "A Data-Driven Breakdown of Modern Physical Therapy Web Design Budgets",
-      "category": "Web Design"
-    },
-    {
-      "slug": "advanced-physical-therapy-web-design-techniques-to-dominate-the-market-space",
-      "title": "Advanced Physical Therapy Web Design Techniques to Dominate the Market Space",
-      "category": "Web Design"
-    },
-    {
-      "slug": "proven-physical-therapy-meta-ads-blueprints-for-accelerating-growth",
-      "title": "Proven Physical Therapy Meta Ads Blueprints for Accelerating Growth",
-      "category": "Meta Ads"
-    },
-    {
-      "slug": "breaking-down-the-real-financial-cost-of-physical-therapy-meta-ads",
-      "title": "Breaking Down the Real Financial Cost of Physical Therapy Meta Ads",
-      "category": "Meta Ads"
-    },
-    {
-      "slug": "how-to-optimize-physical-therapy-google-ads-for-high-roi-acquisition",
-      "title": "How to Optimize Physical Therapy Google Ads for High-ROI Acquisition",
-      "category": "Google ads"
-    },
-    {
-      "slug": "how-much-does-physical-therapy-google-ads-cost-pricing-and-roi-analysis",
-      "title": "How Much Does Physical Therapy Google Ads Cost? Pricing and ROI Analysis",
-      "category": "Google ads"
-    },
-    {
-      "slug": "a-data-driven-breakdown-of-modern-physical-therapy-seo-budgets",
-      "title": "A Data-Driven Breakdown of Modern Physical Therapy SEO Budgets",
-      "category": "SEO"
-    },
-    {
-      "slug": "maximizing-conversion-rates-key-physical-therapy-seo-blueprints",
-      "title": "Maximizing Conversion Rates: Key Physical Therapy SEO Blueprints",
-      "category": "SEO"
-    },
-    {
-      "slug": "advanced-personal-injury-law-web-design-techniques-to-dominate-the-market-space",
-      "title": "Advanced Personal Injury Law Web Design Techniques to Dominate the Market Space",
-      "category": "Web Design"
-    },
-    {
-      "slug": "breaking-down-the-real-financial-cost-of-personal-injury-law-web-design",
-      "title": "Breaking Down the Real Financial Cost of Personal Injury Law Web Design",
-      "category": "Web Design"
-    },
-    {
-      "slug": "proven-personal-injury-law-meta-ads-blueprints-for-accelerating-growth",
-      "title": "Proven Personal Injury Law Meta Ads Blueprints for Accelerating Growth",
-      "category": "Meta Ads"
-    },
-    {
-      "slug": "how-to-optimize-personal-injury-law-google-ads-for-high-roi-acquisition",
-      "title": "How to Optimize Personal Injury Law Google Ads for High-ROI Acquisition",
-      "category": "Google ads"
-    },
-    {
-      "slug": "how-much-does-personal-injury-law-meta-ads-cost-pricing-and-roi-analysis",
-      "title": "How Much Does Personal Injury Law Meta Ads Cost? Pricing and ROI Analysis",
-      "category": "Meta Ads"
-    },
-    {
-      "slug": "a-data-driven-breakdown-of-modern-personal-injury-law-google-ads-budgets",
-      "title": "A Data-Driven Breakdown of Modern Personal Injury Law Google Ads Budgets",
-      "category": "Google ads"
-    },
-    {
-      "slug": "maximizing-conversion-rates-key-personal-injury-law-seo-blueprints",
-      "title": "Maximizing Conversion Rates: Key Personal Injury Law SEO Blueprints",
-      "category": "SEO"
-    },
-    {
-      "slug": "breaking-down-the-real-financial-cost-of-personal-injury-law-seo",
-      "title": "Breaking Down the Real Financial Cost of Personal Injury Law SEO",
-      "category": "SEO"
-    },
-    {
-      "slug": "advanced-med-spa-web-design-techniques-to-dominate-the-market-space",
-      "title": "Advanced Med Spa Web Design Techniques to Dominate the Market Space",
-      "category": "Web Design"
-    },
-    {
-      "slug": "proven-med-spa-meta-ads-blueprints-for-accelerating-growth",
-      "title": "Proven Med Spa Meta Ads Blueprints for Accelerating Growth",
-      "category": "Meta Ads"
-    },
-    {
-      "slug": "how-much-does-med-spa-web-design-cost-pricing-and-roi-analysis",
-      "title": "How Much Does Med Spa Web Design Cost? Pricing and ROI Analysis",
-      "category": "Web Design"
-    },
-    {
-      "slug": "a-data-driven-breakdown-of-modern-med-spa-meta-ads-budgets",
-      "title": "A Data-Driven Breakdown of Modern Med Spa Meta Ads Budgets",
-      "category": "Meta Ads"
-    },
-    {
-      "slug": "how-to-optimize-med-spa-google-ads-for-high-roi-acquisition",
-      "title": "How to Optimize Med Spa Google Ads for High-ROI Acquisition",
-      "category": "Google ads"
-    },
-    {
-      "slug": "breaking-down-the-real-financial-cost-of-med-spa-google-ads",
-      "title": "Breaking Down the Real Financial Cost of Med Spa Google Ads",
-      "category": "Google ads"
-    },
-    {
-      "slug": "maximizing-conversion-rates-key-med-spa-seo-blueprints",
-      "title": "Maximizing Conversion Rates: Key Med Spa SEO Blueprints",
-      "category": "SEO"
-    },
-    {
-      "slug": "how-much-does-med-spa-seo-cost-pricing-and-roi-analysis",
-      "title": "How Much Does Med Spa SEO Cost? Pricing and ROI Analysis",
-      "category": "SEO"
-    },
-    {
-      "slug": "a-data-driven-breakdown-of-modern-mechanic-web-design-budgets",
-      "title": "A Data-Driven Breakdown of Modern Mechanic Web Design Budgets",
-      "category": "Web Design"
-    },
-    {
-      "slug": "proven-mechanic-meta-ads-blueprints-for-accelerating-growth",
-      "title": "Proven Mechanic Meta Ads Blueprints for Accelerating Growth",
-      "category": "Meta Ads"
-    },
-    {
-      "slug": "advanced-mechanic-web-design-techniques-to-dominate-the-market-space",
-      "title": "Advanced Mechanic Web Design Techniques to Dominate the Market Space",
-      "category": "Web Design"
-    },
-    {
-      "slug": "breaking-down-the-real-financial-cost-of-mechanic-meta-ads",
-      "title": "Breaking Down the Real Financial Cost of Mechanic Meta Ads",
-      "category": "Meta Ads"
-    },
-    {
-      "slug": "how-to-optimize-mechanic-google-ads-for-high-roi-acquisition",
-      "title": "How to Optimize Mechanic Google Ads for High-ROI Acquisition",
-      "category": "Google ads"
-    },
-    {
-      "slug": "how-much-does-mechanic-google-ads-cost-pricing-and-roi-analysis",
-      "title": "How Much Does Mechanic Google Ads Cost? Pricing and ROI Analysis",
-      "category": "Google ads"
-    },
-    {
-      "slug": "maximizing-conversion-rates-key-mechanic-seo-blueprints",
-      "title": "Maximizing Conversion Rates: Key Mechanic SEO Blueprints",
-      "category": "SEO"
-    },
-    {
-      "slug": "advanced-massage-therapy-web-design-techniques-to-dominate-the-market-space",
-      "title": "Advanced Massage Therapy Web Design Techniques to Dominate the Market Space",
-      "category": "Web Design"
-    },
-    {
-      "slug": "a-data-driven-breakdown-of-modern-mechanic-seo-budgets",
-      "title": "A Data-Driven Breakdown of Modern Mechanic SEO Budgets",
-      "category": "SEO"
-    },
-    {
-      "slug": "breaking-down-the-real-financial-cost-of-massage-therapy-web-design",
-      "title": "Breaking Down the Real Financial Cost of Massage Therapy Web Design",
-      "category": "Web Design"
-    },
-    {
-      "slug": "proven-massage-therapy-meta-ads-blueprints-for-accelerating-growth",
-      "title": "Proven Massage Therapy Meta Ads Blueprints for Accelerating Growth",
-      "category": "Meta Ads"
-    },
-    {
-      "slug": "a-data-driven-breakdown-of-modern-massage-therapy-google-ads-budgets",
-      "title": "A Data-Driven Breakdown of Modern Massage Therapy Google Ads Budgets",
-      "category": "Google ads"
-    },
-    {
-      "slug": "how-much-does-massage-therapy-meta-ads-cost-pricing-and-roi-analysis",
-      "title": "How Much Does Massage Therapy Meta Ads Cost? Pricing and ROI Analysis",
-      "category": "Meta Ads"
-    },
-    {
-      "slug": "how-to-optimize-massage-therapy-google-ads-for-high-roi-acquisition",
-      "title": "How to Optimize Massage Therapy Google Ads for High-ROI Acquisition",
-      "category": "Google ads"
-    },
-    {
-      "slug": "maximizing-conversion-rates-key-massage-therapy-seo-blueprints",
-      "title": "Maximizing Conversion Rates: Key Massage Therapy SEO Blueprints",
-      "category": "SEO"
-    },
-    {
-      "slug": "breaking-down-the-real-financial-cost-of-massage-therapy-seo",
-      "title": "Breaking Down the Real Financial Cost of Massage Therapy SEO",
-      "category": "SEO"
-    },
-    {
-      "slug": "advanced-locksmith-web-design-techniques-to-dominate-the-market-space",
-      "title": "Advanced Locksmith Web Design Techniques to Dominate the Market Space",
-      "category": "Web Design"
+      "slug": "how-much-does-auto-detailing-website-services-cost-pricing-and-roi-analysis",
+      "title": "How Much Does Auto Detailing Website Services Cost? Pricing and ROI Analysis",
+      "category": "Website Services"
     }
   ]
 }

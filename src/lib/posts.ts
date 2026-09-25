@@ -70,9 +70,19 @@ export function postsByCategory(category: string) {
 }
 
 export function relatedPosts(post: PostSummary, limit = 3) {
+  // Categories are broad (e.g. "Website Services" spans every industry we write
+  // about), so matching on category alone surfaces unrelated posts (a med spa
+  // article "related" to personal injury law content). Tags encode the actual
+  // topic, so match on shared tags instead and rank by overlap count. If a post
+  // has no topical match, show fewer related posts rather than padding with
+  // off-topic ones from the same broad category.
   return allPosts
-    .filter((p) => p.slug !== post.slug && p.categories.some((c) => post.categories.includes(c)))
-    .slice(0, limit);
+    .filter((p) => p.slug !== post.slug)
+    .map((p) => ({ post: p, sharedTags: p.tags.filter((t) => post.tags.includes(t)).length }))
+    .filter((p) => p.sharedTags > 0)
+    .sort((a, b) => b.sharedTags - a.sharedTags)
+    .slice(0, limit)
+    .map((p) => p.post);
 }
 
 export function paginate<T>(list: T[], page: number, perPage: number) {

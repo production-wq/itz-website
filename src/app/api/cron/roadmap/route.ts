@@ -48,7 +48,7 @@ export const runtime = 'nodejs';
 // parallel without relying on Fluid Compute's higher ceiling.
 export const maxDuration = 300;
 
-const DAILY_LIMIT = 4;
+const DAILY_LIMIT = 1;
 const SITE_ORIGIN = 'https://itzdigital.co';
 const QUEUE_PATH = 'content-queue/roadmap/queue.json';
 const POSTS_INDEX_PATH = 'src/content/posts-index.json';

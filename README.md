@@ -1007,8 +1007,8 @@ already in the queue. The original export is kept at
 **The automatic daily run lives on Vercel, not GitHub Actions.**
 `src/app/api/cron/roadmap/route.ts`, triggered once a day by the `crons`
 entry in `vercel.json`, selects every row that's still `pending` and whose
-`launchDate` has arrived (today or earlier), oldest first, up to 4 — the
-pace the client asked for — and generates them concurrently with Gemini
+`launchDate` has arrived (today or earlier), oldest first, up to `DAILY_LIMIT`
+(1, the pace the client asked for) — and generates them concurrently with Gemini
 (this queue is Gemini-only by requirement, unlike §7/§12's `--provider`
 choice). It reads and writes `content-queue/roadmap/queue.json` straight off
 GitHub via the REST API (`src/lib/admin/github.ts` — the same client

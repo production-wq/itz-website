@@ -21,7 +21,7 @@ export function SignalGrid({
 }: {
   eyebrow?: string;
   title: string;
-  intro?: string;
+  intro?: ReactNode;
   signals: Signal[];
   tone?: 'white' | 'muted';
   id?: string;

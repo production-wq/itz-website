@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { AlertTriangle, Check, MapPin } from 'lucide-react';
@@ -29,6 +30,28 @@ const PROCESS_IMAGE = new Set([
   'review-management',
   'creative',
 ]);
+
+/** Per-service override for the "How we measure it" intro; others use the shared default. */
+const MEASURE_INTRO: Record<string, ReactNode> = {
+  'cold-outreach': (
+    <>
+      Ten replies can mean ten different things. An out-of-office message, an unsubscribe request and a
+      request for pricing should not count as equivalent results. Outreach Engine&rsquo;s{' '}
+      <a
+        href="https://www.outreachengine.co/blog/cold-email-metrics-that-matter"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="font-medium text-blue-600 underline underline-offset-2 hover:text-blue-700"
+      >
+        guide to cold email metrics
+      </a>{' '}
+      distinguishes total replies from positive replies&mdash;a useful starting point for understanding
+      campaign quality. For your business, the next step is connecting that interest to qualified
+      meetings, sales opportunities and won work. These are the earlier signals we review to see where
+      targeting, messaging or follow-up needs attention.
+    </>
+  ),
+};
 
 export function generateStaticParams() {
   return services.map((s) => ({ service: s.slug }));
@@ -218,7 +241,10 @@ export default async function ServicePage({ params }: { params: Promise<{ servic
         <SignalGrid
           eyebrow="How we measure it"
           title={`What a working ${label} account looks like`}
-          intro="Booked jobs are the goal. These are the earlier reads that tell us the channel is on track to get there."
+          intro={
+            MEASURE_INTRO[service.slug] ??
+            'Booked jobs are the goal. These are the earlier reads that tell us the channel is on track to get there.'
+          }
           signals={extra.outcomes}
           tone="muted"
         />

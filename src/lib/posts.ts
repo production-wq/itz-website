@@ -5,6 +5,7 @@ import { join } from 'node:path';
 
 import index from '@/content/posts-index.json';
 import postImages from '@/content/post-images.json';
+import { postIndustry } from './post-industries';
 import type { Faq } from './geo/types';
 
 /**
@@ -69,9 +70,36 @@ export function postsByCategory(category: string) {
   return allPosts.filter((p) => p.categories.includes(category));
 }
 
+/**
+ * Posts worth reading next. Categories are content types, not industries, so
+ * matching on them alone surfaces e.g. a plumbing post next to Physical Therapy
+ * "Website Services" guides. When the post's industry is known, candidates are
+ * limited to that industry — the same trade first, then others in its group —
+ * and a short list beats padding it with off-topic reads. Posts with no
+ * detectable industry fall back to category overlap.
+ */
 export function relatedPosts(post: PostSummary, limit = 3) {
-  return allPosts
-    .filter((p) => p.slug !== post.slug && p.categories.some((c) => post.categories.includes(c)))
+  const industry = postIndustry(post);
+  const sharedCategories = (p: PostSummary) =>
+    p.categories.filter((c) => post.categories.includes(c)).length;
+
+  const candidates = allPosts.filter((p) => {
+    if (p.slug === post.slug) return false;
+    if (!industry) return sharedCategories(p) > 0;
+    return postIndustry(p)?.group === industry.group;
+  });
+
+  const sameTopic = (p: PostSummary) =>
+    industry?.topic != null && postIndustry(p)?.topic === industry.topic ? 1 : 0;
+
+  return candidates
+    .sort(
+      (a, b) =>
+        sameTopic(b) - sameTopic(a) ||
+        sharedCategories(b) - sharedCategories(a) ||
+        (b.date ?? '').localeCompare(a.date ?? '') ||
+        a.slug.localeCompare(b.slug),
+    )
     .slice(0, limit);
 }
 

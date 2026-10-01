@@ -19,7 +19,7 @@ import { fileURLToPath } from 'node:url';
 
 import { GoogleGenAI } from '@google/genai';
 
-import { generateImage, promptFor, resolveKey } from './lib/image-gen.mjs';
+import { altFor, generateImage, promptFor, resolveKey } from './lib/image-gen.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
@@ -64,14 +64,14 @@ async function main() {
     const outPath = join(BLOG_OUT, `${post.slug}.webp`);
     if (!args.force && existsSync(outPath)) {
       skipped += 1;
-      map[post.slug] ??= { image: `/images/blog/${post.slug}.webp`, alt: post.title };
+      map[post.slug] ??= { image: `/images/blog/${post.slug}.webp`, alt: altFor(post) };
       continue;
     }
     process.stdout.write(`gen   ${post.slug} … `);
     try {
       const webp = await generateImage(ai, { prompt: promptFor(post), aspect: '4:3' });
       writeFileSync(outPath, webp);
-      map[post.slug] = { image: `/images/blog/${post.slug}.webp`, alt: post.title };
+      map[post.slug] = { image: `/images/blog/${post.slug}.webp`, alt: altFor(post) };
       made += 1;
       console.log(`${(webp.length / 1024).toFixed(0)} KB`);
     } catch (err) {

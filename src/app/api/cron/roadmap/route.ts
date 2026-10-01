@@ -5,7 +5,7 @@ import { POST_SCHEMA, readingTime, slugify, validatePost } from '@/lib/content-s
 import { adminConfig, getFile, isGithubConfigured, putFile } from '@/lib/admin/github';
 import { isSlackConfigured, sendSlackMessage } from '@/lib/slack';
 import { DEFAULT_MODEL, describeError, makeGeminiProvider, postPrompt, readServices, readSite, systemPrompt } from '../../../../../scripts/lib/content-gen.mjs';
-import { generateImage, promptFor } from '../../../../../scripts/lib/image-gen.mjs';
+import { altFor, generateImage, promptFor } from '../../../../../scripts/lib/image-gen.mjs';
 import { buildLinkManifest, resolveInternalLinks } from '../../../../../scripts/lib/internal-links.mjs';
 
 /** See the two .mjs modules' own JSDoc for the full shape — pinning down only what this route uses. */
@@ -267,7 +267,7 @@ export async function GET(request: Request) {
     const mapFile = await getFile(POST_IMAGES_PATH, baseBranch);
     const map = mapFile ? JSON.parse(mapFile.content) : {};
     for (const r of imagesWithFile) {
-      map[r.post!.slug] = { image: `/images/blog/${r.post!.slug}.webp`, alt: r.post!.title };
+      map[r.post!.slug] = { image: `/images/blog/${r.post!.slug}.webp`, alt: altFor({ title: r.post!.title, category: r.post!.categories?.[0] }) };
     }
     const sorted = Object.fromEntries(Object.keys(map).sort().map((k) => [k, map[k]]));
     await putFile({

@@ -17,6 +17,8 @@ export const site = {
   },
   rating: { value: 4.9, count: 500 },
   yearsInBusiness: 20,
+  /** Default byline for blog posts (shown on the page, in meta tags and in Article JSON-LD). */
+  author: { name: 'Saikat Chowdhury' },
   social: {
     facebook: 'https://www.facebook.com/itzdigital',
     linkedin: 'https://www.linkedin.com/company/itzdigital',

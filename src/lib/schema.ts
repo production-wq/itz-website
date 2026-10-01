@@ -26,6 +26,7 @@ export interface JsonLdGraph {
 }
 
 const ORG_ID = `${site.url}/#organization`;
+const AUTHOR_ID = `${site.url}/#author`;
 
 const abs = (path: string) => `${site.url}${path}`;
 
@@ -241,12 +242,12 @@ export function buildArticleGraph(post: Post): JsonLdGraph {
   const article: JsonLdNode = {
     '@type': 'Article',
     '@id': `${abs(path)}#article`,
-    headline: post.title,
+    headline: post.h1 ?? post.title,
     description,
     url: abs(path),
     ...(post.heroImage ? { image: abs(post.heroImage) } : {}),
     ...(post.date ? { datePublished: post.date, dateModified: post.date } : {}),
-    author: { '@id': ORG_ID },
+    author: { '@id': AUTHOR_ID },
     publisher: { '@id': ORG_ID },
     mainEntityOfPage: { '@id': `${abs(path)}#webpage` },
     ...(post.categories.length > 0 ? { articleSection: post.categories } : {}),
@@ -264,12 +265,19 @@ export function buildArticleGraph(post: Post): JsonLdGraph {
     breadcrumb: { '@id': `${abs(path)}#breadcrumb` },
   };
 
+  const author: JsonLdNode = {
+    '@type': 'Person',
+    '@id': AUTHOR_ID,
+    name: site.author.name,
+  };
+
   return {
     '@context': 'https://schema.org',
     '@graph': [
       webPage,
       buildBreadcrumbNode([{ name: 'Blog', path: '/blog' }, { name: post.title, path }], path),
       article,
+      author,
       ...(post.faqs && post.faqs.length > 0 ? [buildFaqNode(post.faqs, path)] : []),
     ],
   };

@@ -6,6 +6,7 @@ import { join } from 'node:path';
 import index from '@/content/posts-index.json';
 import postImages from '@/content/post-images.json';
 import type { Faq } from './geo/types';
+import { industryOf } from './post-industry';
 
 /**
  * slug → featured image. Kept out of the post JSON and the generated index so a
@@ -38,7 +39,14 @@ function withHeroImage<T extends { slug: string }>(post: T): T & {
   return hero ? { ...post, heroImage: hero.image, heroImageAlt: hero.alt } : post;
 }
 
-export type Post = PostSummary & { content: string };
+export type Post = PostSummary & {
+  content: string;
+  /**
+   * On-page H1 when it should differ from `title` (which stays the card/list
+   * headline). Used to keep the H1 identical to the `<title>` tag.
+   */
+  h1?: string;
+};
 
 /** Where post images are served from. Set to a CDN or the legacy WP host. */
 const MEDIA_BASE =
@@ -69,10 +77,29 @@ export function postsByCategory(category: string) {
   return allPosts.filter((p) => p.categories.includes(category));
 }
 
+/**
+ * "Keep reading" picks. Posts about the same industry come first — the same
+ * sub-industry (e.g. physical therapy) ahead of the wider one (medical) — and
+ * within a tier the ones covering the same service category win, then the newest.
+ * A post whose industry can't be inferred falls back to category matching alone.
+ */
 export function relatedPosts(post: PostSummary, limit = 3) {
+  const here = industryOf(post);
+
   return allPosts
-    .filter((p) => p.slug !== post.slug && p.categories.some((c) => post.categories.includes(c)))
-    .slice(0, limit);
+    .filter((p) => p.slug !== post.slug)
+    .map((p) => {
+      const there = industryOf(p);
+      const sameIndustry = !!here && !!there && here.industry === there.industry;
+      const sameSub = sameIndustry && !!here.sub && here.sub === there!.sub;
+      const sameCategory = p.categories.some((c) => post.categories.includes(c));
+      return { p, rank: (sameSub ? 4 : 0) + (sameIndustry ? 2 : 0) + (sameCategory ? 1 : 0), sameIndustry };
+    })
+    // With a known industry, never pad with other industries' posts.
+    .filter(({ rank, sameIndustry }) => (here ? sameIndustry : rank > 0))
+    .sort((a, b) => b.rank - a.rank || (b.p.date ?? '').localeCompare(a.p.date ?? ''))
+    .slice(0, limit)
+    .map(({ p }) => p);
 }
 
 export function paginate<T>(list: T[], page: number, perPage: number) {

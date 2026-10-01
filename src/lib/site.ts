@@ -15,6 +15,8 @@ export const site = {
     postalCode: '82609',
     country: 'US',
   },
+  /** Byline for blog posts — a team credit, not an individual. */
+  author: { name: 'ITZ Digital Team' },
   rating: { value: 4.9, count: 500 },
   yearsInBusiness: 20,
   social: {

@@ -153,3 +153,63 @@ export function promptFor({ title, category }) {
   const scene = SCENES[String(category || '').toLowerCase()] ?? DEFAULT_SCENE;
   return `Editorial illustration for a small-business marketing article about ${subject}. Scene: ${scene}. A single balanced composition, not a collage of separate panels.`;
 }
+
+// ── Alt text ────────────────────────────────────────────────────────────────
+// Describes what the house-style illustration actually shows (see SCENES),
+// not the post title, so the alt adds information instead of repeating the
+// heading next to it.
+const ALT_SCENES = {
+  seo: 'a search results page with one listing climbing to the top spot beside a local map pack',
+  'google ads': 'a search results page with the top ad slot highlighted next to a bid dial and a ringing phone',
+  'ppc management': 'a paid search dashboard with a highlighted ad slot, a bid dial and a conversion funnel',
+  'meta ads': 'a phone showing a sponsored social post, audience targeting rings and a small results chart',
+  'social media ads': 'a phone showing a boosted social post with rising engagement icons and a performance chart',
+  'programmatic ads': 'display ad slots across several screens connected to an audience graph and a bid meter',
+  websites: 'a rough wireframe turning into a finished, fast website on a phone and a desktop',
+  'web design': 'a wireframe becoming a finished website on a phone and a desktop, with color and type swatches',
+  'website services': 'a website care dashboard with uptime and speed gauges, a monthly checklist and a security shield',
+  'digital marketing': 'search, social and email channels feeding one dashboard with a rising revenue curve',
+  'real estate agent': 'a house with a sold sign, a map pin and a rising listings chart',
+};
+const DEFAULT_ALT_SCENE = ALT_SCENES['digital marketing'];
+
+/** Alt text for a generated house-style featured image. */
+export function altFor({ title, category }) {
+  const subjectMatch = SUBJECTS.find(([re]) => re.test(title));
+  const subject = subjectMatch ? subjectMatch[1] : 'a local service business';
+  const scene = ALT_SCENES[String(category || '').toLowerCase()] ?? DEFAULT_ALT_SCENE;
+  return `Illustration of ${scene}, for ${subject}`;
+}
+
+/**
+ * Some older images were saved with their full image-generation prompt as alt
+ * text ("…no text overlays, no competitors, no low-lighting"). Keep the part
+ * that describes the picture: the first sentence, minus the negative-prompt
+ * tail, capped at a screen-reader-friendly length.
+ */
+export function altFromPrompt(prompt, max = 125) {
+  let text = String(prompt).replace(/\s+/g, ' ').trim();
+  text = text.split(/(?<=[.!?])\s+/)[0];
+  text = text.replace(/[,;]?\s*(?:with\s+)?(?:and\s+)?\bno\b.*$/i, '').replace(/[.\s]+$/, '');
+  // "A detailed, clear image showing a mechanic…" → "A mechanic…"
+  const lead = text.match(/^(?:an?|the)\s+(?:[\w-]+,?\s+){0,3}?(?:image|illustration|scene|graphic|infographic)\s+(?:showing|of|depicting|illustrating)\s+/i);
+  if (lead) text = text.slice(lead[0].length).replace(/^./, (c) => c.toUpperCase());
+  if (text.length > max) {
+    const head = text.slice(0, max);
+    // End on a clause boundary so the alt doesn't stop mid-phrase; failing that,
+    // on a word boundary with any dangling connective dropped.
+    const clause = head.slice(55).search(/,\s|\swith\s/);
+    text =
+      clause >= 0
+        ? head.slice(0, 55 + clause)
+        : head.slice(0, head.lastIndexOf(' ')).replace(/\s+(?:with|and|of|in|on|for|to|a|an|the)$/i, '');
+    text = text.replace(/[,;:\s]+$/, '');
+  }
+  return text;
+}
+
+/** True when an alt value is just the title, empty, or a leaked generation prompt. */
+export function needsBetterAlt(alt, title) {
+  const a = String(alt ?? '').trim();
+  return !a || a === title || a.length > 200 || /\bno (?:text|competitors?|low-lighting|brand logos)\b|text overlays?/i.test(a);
+}

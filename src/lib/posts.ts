@@ -39,7 +39,14 @@ function withHeroImage<T extends { slug: string }>(post: T): T & {
   return hero ? { ...post, heroImage: hero.image, heroImageAlt: hero.alt } : post;
 }
 
-export type Post = PostSummary & { content: string };
+export type Post = PostSummary & {
+  content: string;
+  /**
+   * On-page H1 when it should differ from `title` (which stays the card/list
+   * headline). Used to keep the H1 identical to the `<title>` tag.
+   */
+  h1?: string;
+};
 
 /** Where post images are served from. Set to a CDN or the legacy WP host. */
 const MEDIA_BASE =

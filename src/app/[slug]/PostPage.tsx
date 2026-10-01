@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Clock } from 'lucide-react';
+import { Clock, User } from 'lucide-react';
 
 import { CtaBanner } from '@/components/sections/CtaBanner';
 import { FaqAccordion } from '@/components/ui/FaqAccordion';
@@ -40,6 +40,7 @@ export function postMetadata(slug: string): Metadata {
       description,
       url: `/${post.slug}`,
       publishedTime: post.date ?? undefined,
+      authors: [site.author.name],
       images: post.heroImage ? [{ url: post.heroImage }] : undefined,
     },
   };
@@ -63,14 +64,17 @@ export function PostPage({ slug, post: providedPost }: { slug: string; post?: Po
     <>
       <PageHero
         eyebrow={post.categories[0]}
-        title={post.title}
+        title={post.h1 ?? post.title}
         crumbs={[{ label: 'Blog', href: '/blog' }, { label: post.title }]}
         image={post.heroImage}
         imageAlt={post.heroImageAlt ?? ''}
         imagePriority
       >
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-navy-200">
-          <span>By {site.author.name}</span>
+          <span className="inline-flex items-center gap-1.5">
+            <User className="h-4 w-4" aria-hidden="true" />
+            By {site.author.name}
+          </span>
           {post.date ? <time dateTime={post.date}>{formatDate(post.date)}</time> : null}
           <span className="inline-flex items-center gap-1.5">
             <Clock className="h-4 w-4" aria-hidden="true" />

@@ -15,6 +15,8 @@ export const site = {
     postalCode: '82609',
     country: 'US',
   },
+  /** Byline for blog posts — a team credit, not an individual. */
+  author: { name: 'ITZ Digital Team' },
   rating: { value: 4.9, count: 500 },
   yearsInBusiness: 20,
   social: {
@@ -25,17 +27,3 @@ export const site = {
 } as const;
 
 export const addressLine = `${site.address.street}, ${site.address.city}, ${site.address.region} ${site.address.postalCode}`;
-
-/**
- * The named person credited on blog posts. Left unset, posts are credited to
- * the organisation only. Setting it adds a visible byline and a Person author
- * in each post's structured data — fill it in with a real, verifiable author.
- */
-export type BlogAuthor = {
-  name: string;
-  jobTitle: string;
-  /** Author bio or LinkedIn page; strengthens the Person entity. */
-  url?: string;
-};
-
-export const blogAuthor = null as BlogAuthor | null;

@@ -5,8 +5,8 @@ import { join } from 'node:path';
 
 import index from '@/content/posts-index.json';
 import postImages from '@/content/post-images.json';
-import { postIndustry } from './post-industries';
 import type { Faq } from './geo/types';
+import { industryOf } from './post-industry';
 
 /**
  * slug → featured image. Kept out of the post JSON and the generated index so a
@@ -71,34 +71,34 @@ export function postsByCategory(category: string) {
 }
 
 /**
- * Posts worth reading next. Categories are content types, not industries, so
- * matching on them alone surfaces e.g. a plumbing post next to Physical Therapy
- * "Website Services" guides. When the post's industry is known, candidates are
- * limited to that industry — the same trade first, then others in its group —
- * and a short list beats padding it with off-topic reads. Posts with no
- * detectable industry fall back to category overlap.
+ * Related posts, ranked by how close they are to `post`:
+ *
+ *   1. same industry niche (physical therapy → physical therapy)
+ *   2. same parent vertical (physical therapy → dentists, med spas, ...)
+ *   3. same service category (the old behaviour) — only to fill remaining slots
+ *
+ * Within a tier, posts sharing a service category with `post` come first, then
+ * the newest. Category alone is a poor signal: "Website Services" spans every
+ * industry we serve, so a clinic post would otherwise recommend a roofer's.
  */
 export function relatedPosts(post: PostSummary, limit = 3) {
-  const industry = postIndustry(post);
+  const own = industryOf(post.slug);
+
+  const tier = (p: PostSummary) => {
+    const theirs = industryOf(p.slug);
+    if (own && theirs?.niche === own.niche) return 0;
+    if (own && theirs?.vertical === own.vertical) return 1;
+    return 2;
+  };
   const sharedCategories = (p: PostSummary) =>
     p.categories.filter((c) => post.categories.includes(c)).length;
+  const time = (p: PostSummary) => (p.date ? Date.parse(p.date) : 0);
 
-  const candidates = allPosts.filter((p) => {
-    if (p.slug === post.slug) return false;
-    if (!industry) return sharedCategories(p) > 0;
-    return postIndustry(p)?.group === industry.group;
-  });
-
-  const sameTopic = (p: PostSummary) =>
-    industry?.topic != null && postIndustry(p)?.topic === industry.topic ? 1 : 0;
-
-  return candidates
+  return allPosts
+    .filter((p) => p.slug !== post.slug && (tier(p) < 2 || sharedCategories(p) > 0))
     .sort(
       (a, b) =>
-        sameTopic(b) - sameTopic(a) ||
-        sharedCategories(b) - sharedCategories(a) ||
-        (b.date ?? '').localeCompare(a.date ?? '') ||
-        a.slug.localeCompare(b.slug),
+        tier(a) - tier(b) || sharedCategories(b) - sharedCategories(a) || time(b) - time(a),
     )
     .slice(0, limit);
 }

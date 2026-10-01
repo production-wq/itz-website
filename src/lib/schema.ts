@@ -15,7 +15,7 @@
 import type { ResolvedServiceLocation } from './geo';
 import type { Faq } from './geo/types';
 import type { Post } from './posts';
-import { blogAuthor, site } from './site';
+import { site } from './site';
 
 /** Loose JSON-LD node type — schema.org is too open to model precisely. */
 export type JsonLdNode = Record<string, unknown>;
@@ -26,7 +26,6 @@ export interface JsonLdGraph {
 }
 
 const ORG_ID = `${site.url}/#organization`;
-const AUTHOR_ID = `${site.url}/#blog-author`;
 
 const abs = (path: string) => `${site.url}${path}`;
 
@@ -247,7 +246,7 @@ export function buildArticleGraph(post: Post): JsonLdGraph {
     url: abs(path),
     ...(post.heroImage ? { image: abs(post.heroImage) } : {}),
     ...(post.date ? { datePublished: post.date, dateModified: post.date } : {}),
-    author: { '@id': blogAuthor ? AUTHOR_ID : ORG_ID },
+    author: { '@type': 'Organization', name: site.author.name, url: site.url },
     publisher: { '@id': ORG_ID },
     mainEntityOfPage: { '@id': `${abs(path)}#webpage` },
     ...(post.categories.length > 0 ? { articleSection: post.categories } : {}),
@@ -271,18 +270,6 @@ export function buildArticleGraph(post: Post): JsonLdGraph {
       webPage,
       buildBreadcrumbNode([{ name: 'Blog', path: '/blog' }, { name: post.title, path }], path),
       article,
-      ...(blogAuthor
-        ? [
-            {
-              '@type': 'Person',
-              '@id': AUTHOR_ID,
-              name: blogAuthor.name,
-              jobTitle: blogAuthor.jobTitle,
-              ...(blogAuthor.url ? { url: blogAuthor.url } : {}),
-              worksFor: { '@id': ORG_ID },
-            } satisfies JsonLdNode,
-          ]
-        : []),
       ...(post.faqs && post.faqs.length > 0 ? [buildFaqNode(post.faqs, path)] : []),
     ],
   };

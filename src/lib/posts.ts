@@ -6,6 +6,7 @@ import { join } from 'node:path';
 import index from '@/content/posts-index.json';
 import postImages from '@/content/post-images.json';
 import type { Faq } from './geo/types';
+import { industryOf } from './post-industry';
 
 /**
  * slug → featured image. Kept out of the post JSON and the generated index so a
@@ -69,9 +70,36 @@ export function postsByCategory(category: string) {
   return allPosts.filter((p) => p.categories.includes(category));
 }
 
+/**
+ * Related posts, ranked by how close they are to `post`:
+ *
+ *   1. same industry niche (physical therapy → physical therapy)
+ *   2. same parent vertical (physical therapy → dentists, med spas, ...)
+ *   3. same service category (the old behaviour) — only to fill remaining slots
+ *
+ * Within a tier, posts sharing a service category with `post` come first, then
+ * the newest. Category alone is a poor signal: "Website Services" spans every
+ * industry we serve, so a clinic post would otherwise recommend a roofer's.
+ */
 export function relatedPosts(post: PostSummary, limit = 3) {
+  const own = industryOf(post.slug);
+
+  const tier = (p: PostSummary) => {
+    const theirs = industryOf(p.slug);
+    if (own && theirs?.niche === own.niche) return 0;
+    if (own && theirs?.vertical === own.vertical) return 1;
+    return 2;
+  };
+  const sharedCategories = (p: PostSummary) =>
+    p.categories.filter((c) => post.categories.includes(c)).length;
+  const time = (p: PostSummary) => (p.date ? Date.parse(p.date) : 0);
+
   return allPosts
-    .filter((p) => p.slug !== post.slug && p.categories.some((c) => post.categories.includes(c)))
+    .filter((p) => p.slug !== post.slug && (tier(p) < 2 || sharedCategories(p) > 0))
+    .sort(
+      (a, b) =>
+        tier(a) - tier(b) || sharedCategories(b) - sharedCategories(a) || time(b) - time(a),
+    )
     .slice(0, limit);
 }
 

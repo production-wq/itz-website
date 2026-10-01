@@ -246,7 +246,7 @@ export function buildArticleGraph(post: Post): JsonLdGraph {
     url: abs(path),
     ...(post.heroImage ? { image: abs(post.heroImage) } : {}),
     ...(post.date ? { datePublished: post.date, dateModified: post.date } : {}),
-    author: { '@id': ORG_ID },
+    author: { '@type': 'Organization', name: site.author.name, url: site.url },
     publisher: { '@id': ORG_ID },
     mainEntityOfPage: { '@id': `${abs(path)}#webpage` },
     ...(post.categories.length > 0 ? { articleSection: post.categories } : {}),

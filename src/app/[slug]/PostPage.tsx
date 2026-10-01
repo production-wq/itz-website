@@ -11,6 +11,7 @@ import { PostCard } from '@/components/ui/PostCard';
 import { Section, SectionHeading } from '@/components/ui/Section';
 import { allPosts, formatDate, getPost, relatedPosts, type Post } from '@/lib/posts';
 import { buildArticleGraph } from '@/lib/schema';
+import { site } from '@/lib/site';
 
 /*
  * Blog posts live at the site root (/post-slug), matching the original
@@ -31,6 +32,7 @@ export function postMetadata(slug: string): Metadata {
     // title past the point search engines truncate it.
     title: { absolute: post.seoTitle ?? post.title },
     description,
+    authors: [{ name: site.author.name }],
     alternates: { canonical: `/${post.slug}` },
     openGraph: {
       type: 'article',
@@ -68,6 +70,7 @@ export function PostPage({ slug, post: providedPost }: { slug: string; post?: Po
         imagePriority
       >
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-navy-200">
+          <span>By {site.author.name}</span>
           {post.date ? <time dateTime={post.date}>{formatDate(post.date)}</time> : null}
           <span className="inline-flex items-center gap-1.5">
             <Clock className="h-4 w-4" aria-hidden="true" />

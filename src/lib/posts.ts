@@ -78,28 +78,36 @@ export function postsByCategory(category: string) {
 }
 
 /**
- * "Keep reading" picks. Posts about the same industry come first — the same
- * sub-industry (e.g. physical therapy) ahead of the wider one (medical) — and
- * within a tier the ones covering the same service category win, then the newest.
- * A post whose industry can't be inferred falls back to category matching alone.
+ * Related posts, ranked by how close they are to `post`:
+ *
+ *   1. same industry niche (physical therapy → physical therapy)
+ *   2. same parent vertical (physical therapy → dentists, med spas, ...)
+ *   3. same service category (the old behaviour) — only to fill remaining slots
+ *
+ * Within a tier, posts sharing a service category with `post` come first, then
+ * the newest. Category alone is a poor signal: "Website Services" spans every
+ * industry we serve, so a clinic post would otherwise recommend a roofer's.
  */
 export function relatedPosts(post: PostSummary, limit = 3) {
-  const here = industryOf(post);
+  const own = industryOf(post.slug);
+
+  const tier = (p: PostSummary) => {
+    const theirs = industryOf(p.slug);
+    if (own && theirs?.niche === own.niche) return 0;
+    if (own && theirs?.vertical === own.vertical) return 1;
+    return 2;
+  };
+  const sharedCategories = (p: PostSummary) =>
+    p.categories.filter((c) => post.categories.includes(c)).length;
+  const time = (p: PostSummary) => (p.date ? Date.parse(p.date) : 0);
 
   return allPosts
-    .filter((p) => p.slug !== post.slug)
-    .map((p) => {
-      const there = industryOf(p);
-      const sameIndustry = !!here && !!there && here.industry === there.industry;
-      const sameSub = sameIndustry && !!here.sub && here.sub === there!.sub;
-      const sameCategory = p.categories.some((c) => post.categories.includes(c));
-      return { p, rank: (sameSub ? 4 : 0) + (sameIndustry ? 2 : 0) + (sameCategory ? 1 : 0), sameIndustry };
-    })
-    // With a known industry, never pad with other industries' posts.
-    .filter(({ rank, sameIndustry }) => (here ? sameIndustry : rank > 0))
-    .sort((a, b) => b.rank - a.rank || (b.p.date ?? '').localeCompare(a.p.date ?? ''))
-    .slice(0, limit)
-    .map(({ p }) => p);
+    .filter((p) => p.slug !== post.slug && (tier(p) < 2 || sharedCategories(p) > 0))
+    .sort(
+      (a, b) =>
+        tier(a) - tier(b) || sharedCategories(b) - sharedCategories(a) || time(b) - time(a),
+    )
+    .slice(0, limit);
 }
 
 export function paginate<T>(list: T[], page: number, perPage: number) {

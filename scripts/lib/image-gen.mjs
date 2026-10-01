@@ -211,5 +211,5 @@ export function altFromPrompt(prompt, max = 125) {
 /** True when an alt value is just the title, empty, or a leaked generation prompt. */
 export function needsBetterAlt(alt, title) {
   const a = String(alt ?? '').trim();
-  return !a || a === title || a.length > 140;
+  return !a || a === title || a.length > 200 || /\bno (?:text|competitors?|low-lighting|brand logos)\b|text overlays?/i.test(a);
 }

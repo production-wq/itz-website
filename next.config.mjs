@@ -24,6 +24,18 @@ const nextConfig = {
       permanent: true,
     }));
 
+    // Posts whose slug was renamed after publishing (src/content/posts has only
+    // the new slug). Both the root and the short-lived /blog form go straight to
+    // the new URL in one hop, so neither chains through a second redirect. An
+    // explicit 301 rather than `permanent` (which Next sends as a 308).
+    // The same table keeps scripts/import-roadmap-csv.mjs from re-queuing the
+    // old slugs.
+    const renamed = JSON.parse(readFileSync('./src/content/post-redirects.json', 'utf8'));
+    const renamedPostRedirects = Object.entries(renamed).flatMap(([from, to]) => [
+      { source: `/${from}`, destination: `/${to}`, statusCode: 301 },
+      { source: `/blog/${from}`, destination: `/${to}`, statusCode: 301 },
+    ]);
+
     // WordPress archive URLs with no equivalent page in the rebuild. Send them
     // to the blog index rather than letting them 404.
     const archiveRedirects = [
@@ -72,6 +84,7 @@ const nextConfig = {
       { source: '/auto-detailing', destination: '/automotive/auto-detailing', permanent: true },
       ...movedPages,
       ...archiveRedirects,
+      ...renamedPostRedirects,
       ...postRedirects,
     ];
   },

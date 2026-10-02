@@ -20,16 +20,25 @@ import type { Faq } from '@/lib/geo/types';
 export function FaqAccordion({
   faqs,
   allowMultiple = true,
+  defaultOpen = 'first',
   className,
 }: {
   faqs: Faq[];
   /** false = classic single-open accordion. */
   allowMultiple?: boolean;
+  /**
+   * Which items start expanded. 'all' keeps every answer visible on load, so a
+   * short list never reads as unanswered questions to people or crawlers that
+   * don't click.
+   */
+  defaultOpen?: 'first' | 'all';
   className?: string;
 }) {
   const baseId = useId();
-  // First item open by default: an all-collapsed list reads as an empty section.
-  const [open, setOpen] = useState<Set<number>>(() => new Set([0]));
+  // Never start all-collapsed: that reads as an empty section.
+  const [open, setOpen] = useState<Set<number>>(
+    () => new Set(defaultOpen === 'all' ? faqs.map((_, i) => i) : [0]),
+  );
 
   const toggle = (index: number) => {
     setOpen((prev) => {

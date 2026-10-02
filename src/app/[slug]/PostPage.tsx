@@ -96,7 +96,7 @@ export function PostPage({ slug, post: providedPost }: { slug: string; post?: Po
                 <h2 id="post-faq" className="text-display-sm text-navy-700">
                   Frequently asked questions
                 </h2>
-                <FaqAccordion faqs={post.faqs} className="mt-8" />
+                <FaqAccordion faqs={post.faqs} defaultOpen="all" className="mt-8" />
               </section>
             ) : null}
 

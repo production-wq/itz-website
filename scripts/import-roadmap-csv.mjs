@@ -35,6 +35,40 @@ import { parseInternalLinksCell } from './lib/internal-links.mjs';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const QUEUE_PATH = resolve(ROOT, 'content-queue/roadmap/queue.json');
 
+// The sheet's `Services` value "Digital Market Agency Core" was once pasted
+// straight into titles and slugs ("Plumbers Digital Market Agency Core Cost"),
+// which is gibberish. Those posts were renamed (src/content/post-redirects.json
+// maps old slug -> new slug). The sheet still carries the old text, so every
+// title, slug and link is normalised here — otherwise a re-import would not
+// recognise the renamed rows and would queue the broken posts again. The
+// `Services` value itself is left alone: it is only used to pick a category.
+const RENAMED_POSTS = JSON.parse(
+  readFileSync(resolve(ROOT, 'src/content/post-redirects.json'), 'utf8'),
+);
+const BROKEN_PHRASE_RULES = [
+  [/Digital Market(?:ing)? Agency Core Agencies/g, 'Digital Marketing Agencies'],
+  [/digital market(?:ing)? agency core agencies/g, 'digital marketing agencies'],
+  [/Digital Market(?:ing)? Agency Core Marketing/g, 'Digital Marketing'],
+  [/Digital Market(?:ing)? Agency Core/g, 'Digital Marketing'],
+  [/digital market(?:ing)? agency core/g, 'digital marketing'],
+  [/digital-market-agency-core-agencies/g, 'digital-marketing-agencies'],
+  [/digital-market-agency-core/g, 'digital-marketing'],
+  [/Digital Market Agency/g, 'Digital Marketing Agency'],
+  [/digital market agency/g, 'digital marketing agency'],
+  [/digital-market-agency/g, 'digital-marketing-agency'],
+];
+
+function cleanBrokenPhrase(text) {
+  let out = text ?? '';
+  for (const [oldSlug, newSlug] of Object.entries(RENAMED_POSTS)) {
+    out = out.replaceAll(oldSlug, newSlug);
+  }
+  for (const [pattern, replacement] of BROKEN_PHRASE_RULES) {
+    out = out.replace(pattern, replacement);
+  }
+  return out;
+}
+
 // The blog's real category taxonomy (src/lib/content-gen.mjs BLOG_CATEGORIES)
 // — the roadmap CSV's `Services` values need mapping onto these exact strings.
 const SERVICE_TO_CATEGORY = {
@@ -142,11 +176,11 @@ function main() {
   let skippedNoSlug = 0;
 
   for (const row of body) {
-    const title = row[idx.title]?.trim();
-    const link = row[idx.link]?.trim();
+    const title = cleanBrokenPhrase(row[idx.title]?.trim());
+    const link = cleanBrokenPhrase(row[idx.link]?.trim());
     const launchDate = parseLaunchDate(row[idx.launchDate]);
     const slug = link ? slugFromLink(link) : null;
-    const internalLinks = parseInternalLinksCell(row[idx.internalLinks]);
+    const internalLinks = parseInternalLinksCell(cleanBrokenPhrase(row[idx.internalLinks]));
 
     if (!title || !slug) { skippedNoSlug += 1; continue; }
     if (!launchDate) { skippedBadDate += 1; continue; }
@@ -165,8 +199,8 @@ function main() {
     const category = SERVICE_TO_CATEGORY[service] ?? 'Digital Marketing';
     const vertical = row[idx.vertical]?.trim();
     const topic = row[idx.topic]?.trim();
-    const keywords = row[idx.keywords]?.trim();
-    const description = row[idx.description]?.trim();
+    const keywords = cleanBrokenPhrase(row[idx.keywords]?.trim());
+    const description = cleanBrokenPhrase(row[idx.description]?.trim());
 
     const angleParts = [];
     if (description) angleParts.push(description);

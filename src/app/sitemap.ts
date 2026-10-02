@@ -3,6 +3,7 @@ import type { MetadataRoute } from 'next';
 import { caseStudies } from '@/lib/case-studies';
 import { cities, serviceLocationParams } from '@/lib/geo';
 import { industries } from '@/lib/industries';
+import { authors } from '@/lib/authors';
 import { allPosts } from '@/lib/posts';
 import { services } from '@/lib/services';
 import { site } from '@/lib/site';
@@ -79,8 +80,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
+  const authorPages: MetadataRoute.Sitemap = authors.map((a) => ({
+    url: url(`/authors/${a.slug}`),
+    lastModified: now,
+    changeFrequency: 'monthly',
+    priority: 0.5,
+  }));
+
   return [
     ...staticPages,
+    ...authorPages,
     ...servicePages,
     ...geoPages,
     ...industryPages,

@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Clock, User } from 'lucide-react';
+import { Clock } from 'lucide-react';
 
 import { CtaBanner } from '@/components/sections/CtaBanner';
 import { FaqAccordion } from '@/components/ui/FaqAccordion';
@@ -9,9 +10,9 @@ import { JsonLd } from '@/components/ui/JsonLd';
 import { PageHero } from '@/components/ui/PageHero';
 import { PostCard } from '@/components/ui/PostCard';
 import { Section, SectionHeading } from '@/components/ui/Section';
+import { authorForPost } from '@/lib/authors';
 import { allPosts, formatDate, getPost, relatedPosts, type Post } from '@/lib/posts';
 import { buildArticleGraph } from '@/lib/schema';
-import { site } from '@/lib/site';
 
 /*
  * Blog posts live at the site root (/post-slug), matching the original
@@ -22,6 +23,7 @@ export function postMetadata(slug: string): Metadata {
   const post = allPosts.find((p) => p.slug === slug);
   if (!post) return {};
 
+  const author = authorForPost(post);
   const description = post.seoDescription ?? post.excerpt;
 
   return {
@@ -32,7 +34,7 @@ export function postMetadata(slug: string): Metadata {
     // title past the point search engines truncate it.
     title: { absolute: post.seoTitle ?? post.title },
     description,
-    authors: [{ name: site.author.name }],
+    authors: [{ name: author.name, url: `/authors/${author.slug}` }],
     alternates: { canonical: `/${post.slug}` },
     openGraph: {
       type: 'article',
@@ -40,7 +42,7 @@ export function postMetadata(slug: string): Metadata {
       description,
       url: `/${post.slug}`,
       publishedTime: post.date ?? undefined,
-      authors: [site.author.name],
+      authors: [author.name],
       images: post.heroImage ? [{ url: post.heroImage }] : undefined,
     },
   };
@@ -57,6 +59,7 @@ export function PostPage({ slug, post: providedPost }: { slug: string; post?: Po
   if (!post) notFound();
 
   const related = relatedPosts(post);
+  const author = authorForPost(post);
 
   const graph = buildArticleGraph(post);
 
@@ -71,10 +74,19 @@ export function PostPage({ slug, post: providedPost }: { slug: string; post?: Po
         imagePriority
       >
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-navy-200">
-          <span className="inline-flex items-center gap-1.5">
-            <User className="h-4 w-4" aria-hidden="true" />
-            By {site.author.name}
-          </span>
+          <Link
+            href={`/authors/${author.slug}`}
+            className="inline-flex items-center gap-2 font-medium text-white hover:underline"
+          >
+            <Image
+              src={author.image}
+              alt=""
+              width={28}
+              height={28}
+              className="h-7 w-7 rounded-full object-cover ring-2 ring-white/30"
+            />
+            By {author.name}
+          </Link>
           {post.date ? <time dateTime={post.date}>{formatDate(post.date)}</time> : null}
           <span className="inline-flex items-center gap-1.5">
             <Clock className="h-4 w-4" aria-hidden="true" />
@@ -99,6 +111,35 @@ export function PostPage({ slug, post: providedPost }: { slug: string; post?: Po
                 <FaqAccordion faqs={post.faqs} defaultOpen="all" className="mt-8" />
               </section>
             ) : null}
+
+            <aside
+              aria-labelledby="post-author"
+              className="mt-14 flex flex-col gap-5 rounded-3xl border border-navy-100 bg-surface-muted p-7 sm:flex-row sm:items-start"
+            >
+              <Image
+                src={author.image}
+                alt={author.name}
+                width={96}
+                height={96}
+                className="h-24 w-24 shrink-0 rounded-full object-cover shadow-card"
+              />
+              <div>
+                <p className="text-eyebrow uppercase text-ink-500">Written by</p>
+                <h2 id="post-author" className="mt-1 text-xl font-bold text-navy-700">
+                  <Link href={`/authors/${author.slug}`} className="hover:text-blue-600">
+                    {author.name}
+                  </Link>
+                </h2>
+                <p className="text-sm font-semibold text-blue-600">{author.role}, ITZ Digital</p>
+                <p className="mt-3 text-[0.9375rem] leading-relaxed text-ink-600">{author.shortBio}</p>
+                <Link
+                  href={`/authors/${author.slug}`}
+                  className="mt-3 inline-flex min-h-tap items-center font-semibold text-blue-600 hover:text-blue-700"
+                >
+                  More from {author.firstName}
+                </Link>
+              </div>
+            </aside>
 
             {post.tags.length > 0 ? (
               <div className="mt-14 border-t border-navy-100 pt-8">

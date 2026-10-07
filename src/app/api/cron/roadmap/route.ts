@@ -44,11 +44,11 @@ export const runtime = 'nodejs';
 // one item's duration, not N x that — but this still needs a Pro-or-higher
 // plan (Hobby caps functions at 60s). The Studio "Generate with AI" route
 // already proves one post + one image comfortably clears 120s; this gives a
-// same-order-of-magnitude batch of up to DAILY_LIMIT headroom to run in
+// same-order-of-magnitude batch of up to WEEKLY_LIMIT headroom to run in
 // parallel without relying on Fluid Compute's higher ceiling.
 export const maxDuration = 300;
 
-const DAILY_LIMIT = 1;
+const WEEKLY_LIMIT = 1;
 const SITE_ORIGIN = 'https://itzdigital.co';
 const QUEUE_PATH = 'content-queue/roadmap/queue.json';
 const POSTS_INDEX_PATH = 'src/content/posts-index.json';
@@ -63,7 +63,7 @@ const POST_IMAGES_PATH = 'src/content/post-images.json';
  * the GitHub API, generates whichever rows are due (Gemini, forced — this
  * queue is Gemini-only), and commits each generated post straight to the
  * base branch — no review PR, by request: this pipeline is meant to publish
- * unattended, every day, with nobody checking a queue. `validatePost()`
+ * unattended, every week, with nobody checking a queue. `validatePost()`
  * still gates each row (word count, required headings, FAQ shape) before
  * anything is written, and a bad row never blocks the rest of the batch.
  * Posts to Slack when SLACK_WEBHOOK_URL is set; silently skips notification
@@ -107,7 +107,7 @@ export async function GET(request: Request) {
   const due = queue
     .filter((r) => r.status === 'pending' && r.launchDate <= today)
     .sort((a, b) => a.launchDate.localeCompare(b.launchDate))
-    .slice(0, DAILY_LIMIT);
+    .slice(0, WEEKLY_LIMIT);
 
   if (due.length === 0) {
     return NextResponse.json({ ok: true, message: `Nothing due as of ${today}.` });

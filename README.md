@@ -993,7 +993,7 @@ section's numbers still hold.
 A third content pipeline, separate from §7/§12's on-demand queue and §13's
 Sanity path: a **pre-planned, dated content calendar** the client supplied as
 a spreadsheet (212 blog posts, each with a `Launch Date`), meant to publish
-itself automatically every day going forward with no one uploading anything.
+itself automatically, one post a week, going forward with no one uploading anything.
 
 **The queue.** `scripts/import-roadmap-csv.mjs <csv>` converts the client's
 export into `content-queue/roadmap/queue.json` — one row per planned post,
@@ -1004,11 +1004,11 @@ updated export only adds new rows; it never touches the status of rows
 already in the queue. The original export is kept at
 `content-queue/roadmap/blogs-source.csv` for reference.
 
-**The automatic daily run lives on Vercel, not GitHub Actions.**
-`src/app/api/cron/roadmap/route.ts`, triggered once a day by the `crons`
+**The automatic weekly run lives on Vercel, not GitHub Actions.**
+`src/app/api/cron/roadmap/route.ts`, triggered once a week (Mondays, 13:00 UTC) by the `crons`
 entry in `vercel.json`, selects every row that's still `pending` and whose
-`launchDate` has arrived (today or earlier), oldest first, up to `DAILY_LIMIT`
-(1, the pace the client asked for) — and generates them concurrently with Gemini
+`launchDate` has arrived (today or earlier), oldest first, up to `WEEKLY_LIMIT`
+(1 — one post per run, so one post a week) — and generates them concurrently with Gemini
 (this queue is Gemini-only by requirement, unlike §7/§12's `--provider`
 choice). It reads and writes `content-queue/roadmap/queue.json` straight off
 GitHub via the REST API (`src/lib/admin/github.ts` — the same client
@@ -1036,7 +1036,7 @@ still required separately for the contact form — see §email/`.env.example`).
 | Variable | Already set? | Notes |
 | - | - | - |
 | `GITHUB_API_TOKEN`, `GITHUB_REPO`, `GITHUB_BASE_BRANCH` | Yes — required for `/admin` (§12) to work at all | `GITHUB_BASE_BRANCH` must be `redesign-refresh` — confirm it matches Vercel's actual Production Branch, or generated posts land on a branch nobody deploys. |
-| `GEMINI_API_KEY` | Likely — used by the Studio "Generate with AI" button (§14) | Check it's there. Keep the model in `scripts/lib/content-gen.mjs`'s `DEFAULT_MODEL.gemini` on a Flash-tier model (not Pro) — this queue runs unattended every day, and Flash is the moderate-cost tier. |
+| `GEMINI_API_KEY` | Likely — used by the Studio "Generate with AI" button (§14) | Check it's there. Keep the model in `scripts/lib/content-gen.mjs`'s `DEFAULT_MODEL.gemini` on a Flash-tier model (not Pro) — this queue runs unattended every week, and Flash is the moderate-cost tier. |
 | `CRON_SECRET` | **No — add this one** | Any long random string. Vercel sends it back as `Authorization: Bearer <value>` on every cron-triggered request automatically once it's set; the route checks it and 503s without it. Steps: Vercel dashboard → your project → **Settings** → **Environment Variables** → **Add New** → Key `CRON_SECRET`, Value: any random string (e.g. generate one with `openssl rand -hex 32`) → save for Production → redeploy. |
 | `SLACK_WEBHOOK_URL` | No — optional | Create at api.slack.com/apps → your app → **Incoming Webhooks** → **Add New Webhook to Workspace** → pick a channel → copy the URL it gives you → set it here. Skip this entirely and the pipeline still runs, just silently. |
 | `RESEND_API_KEY` | Yes, per the client | Used by the contact form only — this route no longer sends email. No action needed either way. |

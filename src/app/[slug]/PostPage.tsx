@@ -45,6 +45,14 @@ export function postMetadata(slug: string): Metadata {
       authors: [author.name],
       images: post.heroImage ? [{ url: post.heroImage }] : undefined,
     },
+    // Without this the root layout's agency-tagline twitter description leaks
+    // onto every article.
+    twitter: {
+      card: 'summary_large_image',
+      title: post.seoTitle ?? post.title,
+      description,
+      images: post.heroImage ? [post.heroImage] : undefined,
+    },
   };
 }
 

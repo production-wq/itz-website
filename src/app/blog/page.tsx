@@ -11,9 +11,6 @@ import { cn } from '@/lib/cn';
 
 const PER_PAGE = 12;
 
-/** Editorial image for the featured slot — the imported posts carry no media. */
-const FEATURED_IMAGE = 'lawyers-estate-planning';
-
 export const metadata: Metadata = {
   title: 'Blog & Resources',
   description:
@@ -52,6 +49,9 @@ export default async function BlogPage({
         title="Industry insights and how-to guides"
         intro="Practical guides on the tactics we run every day — SEO fundamentals, paid ad setup, and honest pricing breakdowns for every service we offer."
         crumbs={[{ label: 'Blog' }]}
+        image="/images/headers/resources.webp"
+        imageAlt="Guides and how-to resources on local marketing"
+        imagePriority
       />
 
       <Section>
@@ -90,20 +90,27 @@ export default async function BlogPage({
             className="group relative mb-12 grid gap-0 overflow-hidden rounded-4xl border border-navy-100 bg-white shadow-card transition-all duration-300 hover:border-blue-200 hover:shadow-card-hover lg:grid-cols-12"
             data-reveal="scale"
           >
-            <div className="media-zoom relative aspect-[16/9] overflow-hidden bg-navy-50 min-w-0 lg:col-span-6 lg:aspect-auto">
-              <Image
-                src={`/images/industries/${FEATURED_IMAGE}.webp`}
-                alt=""
-                fill
-                priority
-                sizes="(min-width: 1024px) 50vw, 100vw"
-                className="object-cover"
-                aria-hidden="true"
-              />
-              <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-tr from-navy-950/40 to-transparent" />
-            </div>
+            {featured.heroImage ? (
+              <div className="media-zoom relative aspect-[16/9] overflow-hidden bg-navy-50 min-w-0 lg:col-span-6 lg:aspect-auto">
+                <Image
+                  src={featured.heroImage}
+                  alt=""
+                  fill
+                  priority
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  className="object-cover"
+                  aria-hidden="true"
+                />
+                <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-tr from-navy-950/40 to-transparent" />
+              </div>
+            ) : null}
 
-            <div className="flex flex-col justify-center p-8 min-w-0 lg:col-span-6 lg:p-12">
+            <div
+              className={cn(
+                'flex flex-col justify-center p-8 min-w-0 lg:p-12',
+                featured.heroImage ? 'lg:col-span-6' : 'lg:col-span-12',
+              )}
+            >
               <p className="eyebrow-script text-blue-600">Latest</p>
               <h2 className="mt-2 text-display-sm text-navy-700">
                 <Link href={`/${featured.slug}`} className="after:absolute after:inset-0 after:content-['']">

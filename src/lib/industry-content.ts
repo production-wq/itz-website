@@ -291,6 +291,50 @@ export const industryExtras: Record<string, IndustryExtra> = {
       website: 'Trade and town pages with upfront pricing ranges, financing on the replacement work, and the shortest possible path to booking a service call.',
     },
   },
+
+  'marketing-agencies': {
+    approach: [
+      {
+        title: 'Your brand on every deliverable, no exceptions',
+        body: 'Reports, dashboard logins, even the naming convention on files carry your agency’s identity. We do not attach our logo anywhere a client could see it, and we do not reach out to a client directly — every message, every file, every status update goes through you first. The account should feel, from the client’s side, indistinguishable from work your own team produced.',
+      },
+      {
+        title: 'We work from your strategy, not around it',
+        body: 'A fulfillment engagement starts with your existing brand guidelines, account history and whatever strategy is already agreed with the client, not a blank slate. If we think something in the current approach is a mistake, we flag it to you, not to the client, and you decide what changes. The strategic relationship stays yours.',
+      },
+      {
+        title: 'Scoped to the gap, not a fixed package',
+        body: 'An agency that needs one overflow account covered for a quarter and an agency handing us an entire channel permanently are different engagements, priced differently. We scope per account — sometimes per deliverable — rather than sell a standard retainer that does not match what you actually need covered.',
+      },
+    ],
+    expandedContext: [
+      'The accounts that go well share a pattern: the agency treats the relationship as an extension of its own delivery team, gives real context on the client (history, sensitivities, what has already been tried and failed) rather than a bare brief, and keeps one point of contact on each side so nothing gets lost in a forwarded email chain. The accounts that go badly are usually ones handed over with no context and reviewed only when the client complains.',
+      'Pricing conversations are worth having early and honestly. Fulfillment makes sense while an account is below the volume that justifies a dedicated hire, or while you are testing whether a channel is worth building in-house at all. Once a channel is consistently full-time work across several accounts, running it internally can end up cheaper — we would rather tell you that than keep an engagement running past the point it still makes sense for you.',
+    ],
+    signals: [
+      {
+        label: 'Client retention on fulfilled accounts',
+        body: 'The account stays and renews at the same rate as your directly-run accounts. If a fulfilled account is churning faster than the rest of your book, something in the handoff or the work itself needs attention.',
+      },
+      {
+        label: 'Turnaround on client requests',
+        body: 'How long it takes a request that comes through you to reach the client with an answer. Fulfillment should not add a visible delay to how fast your agency responds.',
+      },
+      {
+        label: 'Escalations that reach you before they reach the client',
+        body: 'Whether problems — a platform issue, a missed deadline risk, a strategy question — surface to you with time to manage them, rather than showing up as a surprised client email.',
+      },
+      {
+        label: 'Margin held on the account',
+        body: 'Whether the retainer you charge the client still leaves the margin you priced for once fulfillment cost is subtracted. This is the number that tells you whether an account should stay outsourced or move in-house.',
+      },
+    ],
+    channelNotes: {
+      seo: 'Technical audits, page architecture and content run to the same standard as our own direct accounts, reported in your format or ours, rebranded.',
+      paid: 'Daily account management on Google, Meta and programmatic — bids, negatives, creative testing — not a platform left on autopilot between monthly check-ins.',
+      website: 'Builds run from your agency’s design files or ours, QA’d for Core Web Vitals and mobile before handoff, with hosting and maintenance scoped separately.',
+    },
+  },
 };
 
 export const subIndustryExtras: Record<string, SubIndustryExtra> = {
@@ -543,6 +587,41 @@ export const subIndustryExtras: Record<string, SubIndustryExtra> = {
       'A direct-to-owner presence so you are not wholly dependent on DRP volume',
       'Referral-relationship marketing for tow operators, dealers and fleet accounts',
       'Capacity-aware campaign pacing so spend eases when the weather has already filled the bays',
+    ],
+  },
+
+  // ── Marketing Agencies ───────────────────────────────────────────────────────
+  'white-label-seo': {
+    expandedContext: [
+      'The accounts that churn are almost always the ones where SEO was sold as a line item and then run as one — a handful of thin blog posts a month with no technical work underneath them. We start every fulfillment SEO account with the same audit we run on direct clients: crawl errors, page architecture, Core Web Vitals, and whether the content plan is actually built around what the client’s customers search for, not a generic template with the industry name swapped in.',
+    ],
+    checklist: [
+      'A technical audit before any content work starts, not after a client asks why nothing has moved',
+      'Page architecture built around the client’s real services and locations, not a single blended "Services" page',
+      'Reporting format that matches how you already talk to the client, rebranded under your name',
+      'A clear escalation path to you — not the client — if a technical or account access issue comes up',
+    ],
+  },
+  'white-label-ppc': {
+    expandedContext: [
+      'A paid account is the fastest place a client notices thin fulfillment, because the spend and the results sit in the same dashboard every day. We treat white-label PPC accounts exactly like direct ones: daily attention to search terms and bids, structured tests on creative, and budget pacing that reacts to performance rather than a platform left to run itself between monthly check-ins.',
+    ],
+    checklist: [
+      'Daily account management, not a weekly or monthly glance at the dashboard',
+      'A clear line on who holds platform-level account access versus who sees the white-label report',
+      'Search-term and negative-keyword review on a real cadence, not only when spend looks off',
+      'A defined process for strategy changes to route through you before they reach the client',
+    ],
+  },
+  'white-label-web-design': {
+    expandedContext: [
+      'Web projects are the most common first thing an agency outsources, because the need is intermittent rather than constant. The risk is a site that looks finished in a handoff deck but was never checked against Core Web Vitals or real mobile devices — problems that surface after launch, on the client’s time, and become your agency’s problem to explain. We run every build against a QA pass before handoff, whether the design came from your team or ours.',
+    ],
+    checklist: [
+      'A written brief and timeline agreed before build starts, with the real deadline stated upfront',
+      'A Core Web Vitals and mobile QA pass before anything is called finished',
+      'A clear decision on who hosts and maintains the site after launch',
+      'Revision rounds routed through your project lead, not directly to the client',
     ],
   },
 };

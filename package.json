@@ -9,17 +9,21 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "generate:content": "node scripts/generate-daily-content.mjs",
-    "generate:images": "node scripts/generate-images.mjs"
+    "generate:images": "node scripts/generate-images.mjs",
+    "sync:sanity": "node scripts/sync-sanity-posts.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.117.1",
     "@google/genai": "^2.17.1",
+    "@sanity/client": "^8.6.1",
+    "@sanity/webhook": "^4.0.4",
     "lucide-react": "^0.469.0",
     "next": "^16.3.1",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "read-excel-file": "^9.3.10",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "sharp": "^0.35.4"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.16",
@@ -30,7 +34,6 @@
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.3.1",
     "postcss": "^8.5.26",
-    "sharp": "^0.35.4",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.3"
   }

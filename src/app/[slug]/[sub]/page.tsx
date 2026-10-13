@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { AlertTriangle, ArrowRight, ChevronRight, CircleCheck } from 'lucide-react';
+import { AlertTriangle, ArrowRight, CircleCheck } from 'lucide-react';
 
 import { ContextBlock } from '@/components/sections/ContextBlock';
 import { CtaBanner } from '@/components/sections/CtaBanner';
@@ -10,6 +10,7 @@ import { FaqSection } from '@/components/sections/FaqSection';
 import { ProcessTimeline } from '@/components/sections/ProcessTimeline';
 import { Button } from '@/components/ui/Button';
 import { Section, SectionHeading } from '@/components/ui/Section';
+import { SplitHero } from '@/components/ui/SplitHero';
 import { industries, industryBySlug } from '@/lib/industries';
 import { subIndustryExtras } from '@/lib/industry-content';
 import { homepageServices } from '@/lib/services';
@@ -71,61 +72,30 @@ export default async function SubIndustryPage({
 
   const { industry, sub } = found;
   const siblings = industry.children.filter((c) => c.slug !== sub.slug);
-  const image = `/images/industries/${industry.slug}-${sub.slug}.webp`;
   const lower = sub.name.toLowerCase();
   const subExtra = subIndustryExtras[sub.slug];
   const steps = STEPS.map((s) => ({ phase: s.phase, title: s.title, body: s.body(lower) }));
 
   return (
     <>
-      {/* ── Hero: full-bleed photo band with an overlaid copy card ───────── */}
-      <section className="relative">
-        <div className="absolute inset-0 overflow-hidden">
-          <Image
-            src={image}
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-            aria-hidden="true"
-          />
-          <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-navy-950/95 via-navy-900/85 to-navy-800/60" />
-          <div aria-hidden="true" className="absolute right-0 top-0 hidden h-64 w-64 bg-dot-grid bg-dots text-blue-300/20 lg:block" />
+      <SplitHero
+        eyebrow={`${sub.name} marketing`}
+        title={sub.headline}
+        intro={sub.summary}
+        image={`/images/industries/${industry.slug}-${sub.slug}.webp`}
+        imageAlt={`${sub.name} marketing`}
+        fit="cover"
+        crumbs={[
+          { label: 'Who We Serve', href: '/who-we-serve' },
+          { label: industry.name, href: `/${industry.slug}` },
+          { label: sub.name },
+        ]}
+      >
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Button href="/contact" size="lg">Get a Free Quote</Button>
+          <Button href={site.phoneHref} variant="ghost" size="lg">{site.phone}</Button>
         </div>
-
-        <div className="on-dark container relative py-16 lg:py-24">
-          <nav aria-label="Breadcrumb" className="mb-8">
-            <ol className="flex flex-wrap items-center gap-x-1 text-sm text-navy-200">
-              {[
-                { label: 'Home', href: '/' },
-                { label: 'Who We Serve', href: '/who-we-serve' },
-                { label: industry.name, href: `/${industry.slug}` },
-              ].map((c) => (
-                <li key={c.href} className="flex items-center gap-1">
-                  <Link href={c.href} className="tap-target inline-flex min-h-[2rem] items-center rounded px-1 hover:text-white">
-                    {c.label}
-                  </Link>
-                  <ChevronRight className="h-3.5 w-3.5 text-navy-300" aria-hidden="true" />
-                </li>
-              ))}
-              <li>
-                <span aria-current="page" className="px-1 font-medium text-white">{sub.name}</span>
-              </li>
-            </ol>
-          </nav>
-
-          <div className="max-w-2xl" data-reveal="left">
-            <p className="eyebrow-script mb-3 text-amber-400">{sub.name} marketing</p>
-            <h1 className="text-display-lg text-white">{sub.headline}</h1>
-            <p className="mt-6 max-w-prose text-body-lg text-navy-100">{sub.summary}</p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Button href="/contact" variant="onDark" size="lg">Get a Free Quote</Button>
-              <Button href={site.phoneHref} variant="outlineOnDark" size="lg">{site.phone}</Button>
-            </div>
-          </div>
-        </div>
-      </section>
+      </SplitHero>
 
       {/* ── Problem / fix, as two visually opposed columns ───────────────── */}
       <Section>

@@ -33,7 +33,7 @@ export const mainNav: NavItem[] = [
   {
     label: 'Who We Serve',
     href: '/who-we-serve',
-    blurb: 'Five industries, five distinct strategies — not one template with the noun swapped out.',
+    blurb: 'Seven industries, seven distinct strategies — not one template with the noun swapped out.',
     seeAllLabel: 'See all industries',
     columns: industries.map((industry) => ({
       label: industry.name,
@@ -74,7 +74,12 @@ export const mainNav: NavItem[] = [
       {
         label: 'Growth',
         href: '/services/lead-generation',
-        links: [serviceLink('lead-generation'), serviceLink('review-management')],
+        links: [serviceLink('lead-generation'), serviceLink('review-management'), serviceLink('social-media-management')],
+      },
+      {
+        label: 'Outbound',
+        href: '/services/cold-outreach',
+        links: [serviceLink('cold-outreach'), serviceLink('cold-calling'), serviceLink('cold-email')],
       },
       {
         label: 'Creative',
@@ -119,6 +124,8 @@ export const footerNav: NavColumn[] = [
       { label: 'Website Design', href: '/services/website-design' },
       { label: 'Review Management', href: '/services/review-management' },
       { label: 'Creative & Video', href: '/services/creative' },
+      { label: 'Cold Outreach', href: '/services/cold-outreach' },
+      { label: 'Social Media Management', href: '/services/social-media-management' },
     ],
   },
   {

@@ -3,6 +3,7 @@ import type { MetadataRoute } from 'next';
 import { caseStudies } from '@/lib/case-studies';
 import { cities, serviceLocationParams } from '@/lib/geo';
 import { industries } from '@/lib/industries';
+import { authors } from '@/lib/authors';
 import { allPosts } from '@/lib/posts';
 import { services } from '@/lib/services';
 import { site } from '@/lib/site';
@@ -22,6 +23,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       { url: url('/case-studies'), changeFrequency: 'monthly', priority: 0.7 },
       { url: url('/blog'), changeFrequency: 'daily', priority: 0.8 },
       { url: url('/contact'), changeFrequency: 'yearly', priority: 0.9 },
+      { url: url('/sitemap'), changeFrequency: 'weekly', priority: 0.3 },
       { url: url('/terms-conditions'), changeFrequency: 'yearly', priority: 0.1 },
     ] satisfies MetadataRoute.Sitemap
   ).map((entry) => ({ ...entry, lastModified: now }));
@@ -78,8 +80,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
+  const authorPages: MetadataRoute.Sitemap = authors.map((a) => ({
+    url: url(`/authors/${a.slug}`),
+    lastModified: now,
+    changeFrequency: 'monthly',
+    priority: 0.5,
+  }));
+
   return [
     ...staticPages,
+    ...authorPages,
     ...servicePages,
     ...geoPages,
     ...industryPages,

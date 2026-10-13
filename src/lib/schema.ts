@@ -12,6 +12,7 @@
  * data policy calls out, and it risks a manual action across the whole site.
  */
 
+import { authorForPost } from './authors';
 import type { ResolvedServiceLocation } from './geo';
 import type { Faq } from './geo/types';
 import type { Post } from './posts';
@@ -236,16 +237,19 @@ export function buildGeoPageGraph(
  */
 export function buildArticleGraph(post: Post): JsonLdGraph {
   const path = `/${post.slug}`;
+  const postAuthor = authorForPost(post);
+  const authorId = `${abs(`/authors/${postAuthor.slug}`)}#person`;
   const description = post.seoDescription ?? post.excerpt;
 
   const article: JsonLdNode = {
     '@type': 'Article',
     '@id': `${abs(path)}#article`,
-    headline: post.title,
+    headline: post.h1 ?? post.title,
     description,
     url: abs(path),
+    ...(post.heroImage ? { image: abs(post.heroImage) } : {}),
     ...(post.date ? { datePublished: post.date, dateModified: post.date } : {}),
-    author: { '@id': ORG_ID },
+    author: { '@id': authorId },
     publisher: { '@id': ORG_ID },
     mainEntityOfPage: { '@id': `${abs(path)}#webpage` },
     ...(post.categories.length > 0 ? { articleSection: post.categories } : {}),
@@ -263,12 +267,23 @@ export function buildArticleGraph(post: Post): JsonLdGraph {
     breadcrumb: { '@id': `${abs(path)}#breadcrumb` },
   };
 
+  const author: JsonLdNode = {
+    '@type': 'Person',
+    '@id': authorId,
+    name: postAuthor.name,
+    jobTitle: postAuthor.role,
+    url: abs(`/authors/${postAuthor.slug}`),
+    image: abs(postAuthor.image),
+    worksFor: { '@id': ORG_ID },
+  };
+
   return {
     '@context': 'https://schema.org',
     '@graph': [
       webPage,
       buildBreadcrumbNode([{ name: 'Blog', path: '/blog' }, { name: post.title, path }], path),
       article,
+      author,
       ...(post.faqs && post.faqs.length > 0 ? [buildFaqNode(post.faqs, path)] : []),
     ],
   };

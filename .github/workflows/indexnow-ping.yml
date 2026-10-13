@@ -1,0 +1,30 @@
+name: Ping IndexNow on publish
+
+# Fires right after a content PR is merged (or any push touching a post or
+# geo-landing record on the deploy branch) and tells Bing/Yandex the exact
+# URLs that changed. Google has no equivalent public API — see
+# scripts/ping-indexnow.mjs and the /admin/review "Request Google indexing"
+# link for that half.
+
+on:
+  push:
+    # Watches both in case Production on Vercel points somewhere other than
+    # `main` — see GITHUB_BASE_BRANCH in .env.example. Harmless if only one
+    # of these is actually deployed.
+    branches: [redesign-refresh, main]
+    paths:
+      - "src/content/posts/**"
+      - "src/lib/geo/service-locations.json"
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # need the previous commit to diff against
+
+      - run: node scripts/ping-indexnow.mjs
+        env:
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+          SITE_URL: https://itzdigital.co

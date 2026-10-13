@@ -17,7 +17,7 @@ export type Industry = {
   headline: string;
   summary: string;
   /** Lucide icon name, resolved in the component layer. */
-  icon: 'Scale' | 'Stethoscope' | 'Home' | 'GraduationCap' | 'Car' | 'Wrench';
+  icon: 'Scale' | 'Stethoscope' | 'Home' | 'GraduationCap' | 'Car' | 'Wrench' | 'Handshake';
   stat: { value: string; label: string };
   children: SubIndustry[];
   /** Two paragraphs of deeper context, rendered as its own section. */
@@ -933,6 +933,123 @@ export const industries: Industry[] = [
           'Feast-or-famine demand tied to storm events',
           'Storm-chaser competitors flooding the market after every hail event',
           'Insurance-claim confusion stalling the homeowner decision',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'marketing-agencies',
+    context: [
+      "Most agencies hit the same wall: a client asks for a channel the shop does not run, or the account list grows past what the current team can service without every retainer sliding. Hiring for one more discipline is slow and expensive for work that might not stay at this volume, and handing the client to a generalist freelancer risks the relationship you spent months building. White-label fulfillment exists for exactly that gap — the work gets delivered under your name, on your reporting cadence, while you keep the client relationship, the strategy calls and the margin.",
+      "The agencies that use a fulfillment partner well treat it as capacity, not as an admission of a gap: a way to say yes to a bigger retainer, launch a channel the agency has not built an in-house team for yet, or cover overflow during a hiring search without the client ever noticing a seam. It only works if the partner is genuinely invisible — no branded reports, no partner logo anywhere a client could see it, and communication that goes through you, not around you.",
+    ],
+    perks: [
+      "Fully white-label: reports, dashboards and any client-facing material carry your agency's name, not ours. We do not contact your client directly, ever.",
+      "Built to plug into an existing account without a re-onboarding — we work from your strategy and your client's brand guidelines rather than replacing either.",
+      "Scoped per account, so a single overflow retainer and a full channel build-out are priced differently rather than forced into one package.",
+      "Direct line to the people actually doing the work, not an account manager relaying messages — faster turnarounds when a client needs something same-day.",
+    ],
+    faqs: [
+      {
+        "question": "Will our client ever find out the work is outsourced?",
+        "answer": "Not from anything we send. Every report, login and piece of client-facing communication carries your branding, and we do not reach out to your client directly under any circumstance — every message goes through you. The arrangement is between your agency and us; nothing in the deliverables identifies a third party.",
+      },
+      {
+        "question": "What can you actually take off our plate?",
+        "answer": "SEO, paid search and social, and website design and build are the three we run most often as white-label fulfillment — see the specific pages below. Some agencies hand us one channel on one account; others route an entire service line through us permanently. We scope each engagement to what you need covered, not a fixed package.",
+      },
+      {
+        "question": "How does pricing work compared to hiring in-house?",
+        "answer": "You are paying for delivered work on a retainer or per-account basis, not a salary, benefits and ramp-up time for a role that might not stay full-time. That usually makes sense for overflow, a channel you are testing before committing to a hire, or accounts below the volume where a dedicated staff member pencils out. Once a channel is consistently full-time work across your book, hiring in-house can end up cheaper — we will tell you when you are near that line rather than let a good account become the reason to keep outsourcing what no longer needs it.",
+      },
+      {
+        "question": "Can you jump onto an account that's already live with another vendor?",
+        "answer": "Yes, and it is one of the more common ways this starts — a client is unhappy with their current fulfillment and the agency needs continuity without a visible gap. We ask for account access and existing reporting history so the transition does not reset anything the client would notice, and we flag anything in the current setup that looks broken before we touch it, so you know what you are inheriting.",
+      },
+    ],
+    name: 'Marketing Agencies',
+    headline: 'White-label fulfillment for agencies whose clients need more than they can staff',
+    summary:
+      "Take on a bigger retainer or a channel you don't run in-house without the hire. We deliver the work under your name — your reports, your client relationship, your margin.",
+    icon: 'Handshake',
+    stat: { value: '0', label: "Times your client sees our name on the work" },
+    children: [
+      {
+        slug: 'white-label-seo',
+        context: "SEO is the channel agencies most often need to fulfill white-label, because it is also the hardest to staff well: technical audits, content that actually ranks, and link work all require depth most generalist agencies cannot justify hiring for on a handful of accounts. The failure mode we see most is an agency selling SEO because clients ask for it, then running it as an afterthought — thin monthly blog posts and no technical work — which shows up in flat rankings within a couple of quarters and an account that churns. Fulfillment done properly means the account gets the same technical rigor and page architecture work we run on our own direct clients, just reported under your letterhead.",
+        faqs: [
+          {
+            "question": "Do you use our existing SEO tools and reporting format, or your own?",
+            "answer": "We can work inside your existing stack and reporting template if you have one, or provide a white-label dashboard and report format you rebrand as your own — whichever fits how you already run client communication. Either way, the cadence and the metrics reported are ones you approve, not a generic template you have to explain to the client.",
+          },
+          {
+            "question": "How fast can you take over an SEO account that's underperforming?",
+            "answer": "We can start the technical audit within days of getting access, but be honest with the client about timeline: undoing months of thin or misdirected work takes a few weeks to diagnose properly, and ranking movement from the fixes takes the same 90-day-plus horizon any SEO work does. What changes fastest is the account actually having a real strategy behind it, which is often visible in the first status call even before rankings move.",
+          },
+          {
+            "question": "Can you handle SEO across multiple client accounts with different niches?",
+            "answer": "That is most of what this fulfillment line is — agencies rarely have one client, and each account needs its own keyword research, technical fixes and content plan rather than a templated approach copied across niches. We scope and price per account for that reason, so a law firm client and a home services client are run as two distinct strategies, not one process with the industry name swapped.",
+          },
+        ],
+        name: 'White-Label SEO',
+        headline: 'SEO fulfillment your clients experience as your agency’s own work',
+        summary: 'Technical audits, page architecture and content — run to the same standard as our direct accounts, reported under your name.',
+        painPoints: [
+          'SEO sold to clients but run as an afterthought with no technical work',
+          'No in-house capacity to take on another SEO retainer without hiring',
+          'Reporting that does not hold up when a client asks a technical question',
+        ],
+      },
+      {
+        slug: 'white-label-ppc',
+        context: "Paid search and social are where a badly-fulfilled account shows up fastest, because the client can see the spend and the results in the same dashboard every day. Agencies that white-label PPC are usually protecting against two failure modes: an in-house generalist spreading a few thousand dollars a month across too many accounts to actually manage bids and negatives properly, or a client's budget growing past what the current setup can responsibly handle. Fulfillment here means someone is actually in the account daily — adjusting bids, pruning search terms, testing creative — not a platform on autopilot with a monthly glance.",
+        faqs: [
+          {
+            "question": "Who is actually managing the ad spend day to day?",
+            "answer": "A dedicated person on our side works the account daily — search terms, bids, budget pacing, creative testing — the same standard we hold for our own direct clients. You get visibility into everything through the reporting and dashboard access, and any strategy change goes through you first before it reaches the client.",
+          },
+          {
+            "question": "Do you handle Google Ads, Meta, or both?",
+            "answer": "Both, along with programmatic if an account needs display or connected-TV reach. Most white-label PPC accounts run one or two platforms rather than everything at once, and we scope to whichever mix the client's budget and goals actually call for rather than adding a channel because it is available.",
+          },
+          {
+            "question": "What happens if a client wants to see the actual ad accounts?",
+            "answer": "You control what a client sees. Most agencies keep the platform-level account access on their own login and share a white-label reporting dashboard instead, which is the setup we support by default. If a client specifically needs read access to the raw ad account, that can be arranged, but it is your call to make, not a default we set.",
+          },
+        ],
+        name: 'White-Label PPC',
+        headline: 'Paid search and social management your agency can put its name on',
+        summary: 'Daily account management on Google, Meta and programmatic — bids, negatives and creative testing actually happening, not a dashboard on autopilot.',
+        painPoints: [
+          'Ad spend growing past what current staff can actively manage',
+          'Accounts checked weekly instead of managed daily',
+          'A client asking for a platform the agency has never run',
+        ],
+      },
+      {
+        slug: 'white-label-web-design',
+        context: "Web design and build is usually the most project-shaped of the three — a defined scope with a launch date, rather than an ongoing retainer — which makes it a natural first thing agencies outsource, since it does not require a permanent hire to cover an intermittent need. The risk is the same everywhere in this industry: a site that looks fine in a handoff deck but is slow, breaks on mobile, or was never actually built to the brief, and the agency finds out at the same time the client does. Fulfillment here runs the build against the same specification and QA pass we use on our own sites, including a Core Web Vitals check before anything ships.",
+        faqs: [
+          {
+            "question": "Do you work from our design files, or do we need to hand off less?",
+            "answer": "We can build from finished Figma or Adobe XD files if your agency handles design in-house, or take on design and build together if the account needs both. Either way, revisions go through your project lead before the client sees them, so you stay the point of contact for every round of feedback.",
+          },
+          {
+            "question": "What happens after launch — do you handle hosting and maintenance?",
+            "answer": "That is scoped separately from the build. Some agencies want us to hand back a finished site for their own hosting and maintenance process; others want ongoing white-label maintenance included so the client never has a second vendor relationship to manage. We support either, and it is worth deciding upfront so the client's expectations match what actually happens after launch.",
+          },
+          {
+            "question": "How do you handle a tight client deadline?",
+            "answer": "Tell us the real date as early as possible — most timeline problems come from a deadline surfacing in week three of a four-week build rather than at kickoff. We scope builds against a realistic timeline and will say plainly if a date is not achievable rather than let it slip silently and become your problem to explain.",
+          },
+        ],
+        name: 'White-Label Web Design',
+        headline: 'Website builds your agency delivers, start to finish',
+        summary: 'Design and development run to a real specification and a Core Web Vitals check before launch — not a template site with your client’s logo dropped in.',
+        painPoints: [
+          'Web projects taken on without in-house design or dev capacity',
+          'Sites that pass a demo but fail Core Web Vitals or mobile QA',
+          'No clear handoff plan for hosting and maintenance after launch',
         ],
       },
     ],

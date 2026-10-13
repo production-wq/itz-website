@@ -169,7 +169,7 @@ export default async function LocationHubPage({
       <Section tone="muted">
         <SectionHeading
           eyebrow="Who we serve here"
-          title={`Six industries, active in ${city.name}`}
+          title={`Seven industries, active in ${city.name}`}
           intro={`${city.name} clients span all six of our core industries — each with its own keyword strategy and compliance considerations for this market.`}
         />
         <ul className="mt-10 flex flex-wrap gap-3" data-reveal>

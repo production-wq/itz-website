@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowRight, Car, GraduationCap, Home, Scale, Stethoscope, Wrench } from 'lucide-react';
+import { ArrowRight, Car, GraduationCap, Handshake, Home, Scale, Stethoscope, Wrench } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 import { ContextBlock } from '@/components/sections/ContextBlock';
@@ -27,7 +27,7 @@ import { site } from '@/lib/site';
  * dynamic segment with blog posts; `[slug]/page.tsx` decides which renders.
  */
 
-const icons: Record<Industry['icon'], LucideIcon> = { Scale, Stethoscope, Home, GraduationCap, Car, Wrench };
+const icons: Record<Industry['icon'], LucideIcon> = { Scale, Stethoscope, Home, GraduationCap, Car, Wrench, Handshake };
 
 /** Composites are transparent and need `contain`; photographs get `cover`. */
 const HERO_FIT: Record<string, 'contain' | 'cover'> = {
@@ -36,19 +36,25 @@ const HERO_FIT: Record<string, 'contain' | 'cover'> = {
   'real-estate': 'contain',
   automotive: 'contain',
   'home-services': 'contain',
+  'marketing-agencies': 'contain',
   education: 'cover',
 };
+
+/** "Lawyers" → "Lawyers Marketing", but "Marketing Agencies" stays as-is rather than doubling up. */
+const pageTitle = (name: string) => (/marketing/i.test(name) ? name : `${name} Marketing`);
+/** Same guard, lowercase — for the eyebrow label and image alt text ("lawyers marketing" vs "Marketing Agencies"). */
+const eyebrowText = (name: string) => (/marketing/i.test(name) ? name : `${name} marketing`);
 
 export function industryMetadata(slug: string): Metadata {
   const industry = industryBySlug.get(slug);
   if (!industry) return {};
 
   return {
-    title: `${industry.name} Marketing`,
+    title: pageTitle(industry.name),
     description: industry.summary,
     alternates: { canonical: `/${industry.slug}` },
     openGraph: {
-      title: `${industry.name} Marketing | ${site.name}`,
+      title: `${pageTitle(industry.name)} | ${site.name}`,
       description: industry.summary,
       url: `/${industry.slug}`,
       images: [{ url: `/images/industries/${industry.slug}.webp` }],
@@ -83,11 +89,11 @@ export function IndustryPage({ slug }: { slug: string }) {
   return (
     <>
       <SplitHero
-        eyebrow={`${industry.name} marketing`}
+        eyebrow={eyebrowText(industry.name)}
         title={industry.headline}
         intro={industry.summary}
         image={`/images/industries/${industry.slug}.webp`}
-        imageAlt={`${industry.name} marketing`}
+        imageAlt={eyebrowText(industry.name)}
         fit={HERO_FIT[industry.slug] ?? 'cover'}
         crumbs={[{ label: 'Who We Serve', href: '/who-we-serve' }, { label: industry.name }]}
         stat={industry.stat}
@@ -168,7 +174,7 @@ export function IndustryPage({ slug }: { slug: string }) {
             title: a.title,
             body: [a.body],
             image: approachImages[i] ?? approachImages[0],
-            imageAlt: `${industry.name} marketing — ${a.title}`,
+            imageAlt: `${eyebrowText(industry.name)} — ${a.title}`,
           }))}
           mesh
         />
@@ -257,7 +263,7 @@ export function IndustryPage({ slug }: { slug: string }) {
         <FaqSection
           faqs={industry.faqs}
           path={`/${industry.slug}`}
-          title={`${industry.name} marketing: common questions`}
+          title={`${eyebrowText(industry.name)}: common questions`}
           intro={`What ${lower} owners ask us most often before starting.`}
           tone="muted"
         />

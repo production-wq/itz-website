@@ -307,4 +307,100 @@ export const serviceExtras: Record<string, ServiceExtra> = {
       { label: 'Faster testing', body: 'Enough variants in rotation that the account can actually learn which message works, rather than guessing.' },
     ],
   },
+
+  'cold-outreach': {
+    expandedSummary: [
+      'Inbound channels wait for someone to search or scroll into an ad. Outreach goes and finds the specific companies and people who fit your buyer profile, whether or not they are actively looking yet — which is the only way to reach a market that rarely searches for what you sell, or to hit a growth number inbound alone will not cover on its own timeline.',
+      'It only works when the list is right. A perfectly written sequence sent to the wrong companies still fails, and a rough one sent to the right fifty people can book real meetings. We spend real time on the buyer definition and the list before a single call or email goes out, because that decision matters more than any script.',
+    ],
+    process: [
+      { phase: 'Week 1', body: 'Define the buyer profile precisely, build and verify the prospect list, and set the qualification criteria for what counts as a real meeting.' },
+      { phase: 'Week 2', body: 'Write the calling script and email sequence, set up sending infrastructure, and launch against a small test segment.' },
+      { phase: 'Weeks 3–4', body: 'Full sequence live across the list. Early responses reviewed to see which angle is landing, and the sequence adjusted.' },
+      { phase: 'Ongoing', body: 'Continued outreach against a refreshed list, with weekly reporting on touches, responses and meetings booked.' },
+    ],
+    commonMistakes: [
+      { title: 'A broad list instead of a precise one', body: 'Casting wide feels like more opportunity but produces lower response rates and wastes every touch on people who were never going to buy.' },
+      { title: 'One channel, one attempt', body: 'A single cold email or a single unanswered call is not a real test of interest. Most replies come from the second or third coordinated touch.' },
+      { title: 'No plan for the reply', body: 'A campaign that generates interest with nobody ready to follow up within a day loses the momentum that got that reply in the first place.' },
+    ],
+    outcomes: [
+      { label: 'Qualified meetings booked', body: 'The number that actually matters — meetings with people who match your buyer profile, not a raw count of replies.' },
+      { label: 'Response rate by segment', body: 'Which part of your target list is actually responding, so future outreach spends more time where it is working.' },
+      { label: 'A reusable, verified list', body: 'A prospect list built once and kept current, rather than rebuilt from scratch on the next push.' },
+      { label: 'A sequence that keeps improving', body: 'Scripts and copy refined from real response data, not written once and left unchanged.' },
+    ],
+  },
+
+  'cold-calling': {
+    expandedSummary: [
+      'A phone call is still the fastest way to have a real, two-way conversation with someone who has never heard of you — it just has to be a conversation, not a script read at them. The work is in the list, the script, and a real process for the contacts who do not pick up the first time, since most connections happen on the second or third attempt, not the first.',
+      'We track connect rate and qualified-conversation rate separately from raw dial count, because a caller who makes two hundred calls and books nothing is not succeeding by any measure that matters to you. The goal every day is conversations with the right person, not activity for its own sake.',
+    ],
+    process: [
+      { phase: 'Week 1', body: 'Script and objection-handling built from your actual pitch, call list prepared, qualification criteria agreed.' },
+      { phase: 'Week 2', body: 'Calling begins against a test segment of the list, with recordings reviewed to refine the script and approach.' },
+      { phase: 'Weeks 3+', body: 'Full calling cadence against the list, with a defined multi-attempt process for voicemail and gatekeepers.' },
+      { phase: 'Ongoing', body: 'Weekly reporting on connect rate and qualified conversations, with script adjustments based on what is actually landing.' },
+    ],
+    commonMistakes: [
+      { title: 'One attempt, then moving on', body: 'Most contacts do not answer the first call. Without a defined follow-up cadence, the list is being wasted after a single ring.' },
+      { title: 'A script read verbatim', body: 'Prospects can hear when a call is a script rather than a conversation. The best callers know the material well enough to actually listen and respond.' },
+      { title: 'No qualification standard', body: 'Counting every "sure, send me something" as a win floods your pipeline with contacts who were never really interested.' },
+    ],
+    outcomes: [
+      { label: 'Connect rate', body: 'How many attempted calls reach a real person, tracked so we know whether the list or the calling times need adjusting.' },
+      { label: 'Qualified conversations', body: 'Calls that met your actual qualification bar, not just a call that lasted more than thirty seconds.' },
+      { label: 'Same-day handoffs', body: 'Interested, qualified prospects reaching your team the same day, with context, while the interest is still fresh.' },
+      { label: 'A script that improves', body: 'Objection handling and pitch language refined from real call outcomes, not written once and left static.' },
+    ],
+  },
+
+  'cold-email': {
+    expandedSummary: [
+      'Cold email fails for one of two reasons almost every time: it never reaches the inbox, or it reaches the inbox and reads like it was sent to ten thousand people at once. We treat both as separate problems that need separate fixes — proper domain setup and warm-up before volume, and copy specific enough to one recipient that it does not read like a template with a name swapped in.',
+      'The sequence matters as much as any single email. A prospect who ignores the first message might respond to the third, if the third actually adds something new rather than repeating the same pitch with more urgency in the subject line.',
+    ],
+    process: [
+      { phase: 'Week 1', body: 'Domain authentication set up (SPF, DKIM, DMARC), sending mailbox warmed up, list built and verified.' },
+      { phase: 'Week 2', body: 'Sequence written — three to five emails with a distinct angle each — and sent to a small test segment to check deliverability and response.' },
+      { phase: 'Weeks 3+', body: 'Full sequence live across the verified list, sending volume ramped gradually to protect domain reputation.' },
+      { phase: 'Ongoing', body: 'Weekly reporting on open, reply and meeting-booked rate by segment, with copy refined from what is actually getting replies.' },
+    ],
+    commonMistakes: [
+      { title: 'Sending before the domain is ready', body: 'A cold domain sending high volume on day one gets flagged by spam filters before the copy is ever a factor. Warm-up is not optional.' },
+      { title: 'A generic template with a merge field', body: 'Recipients can tell the difference between a name dropped into a template and an email that actually references something true about them.' },
+      { title: 'One email, repeated with more urgency', body: 'Resending the same pitch with "just following up" rarely works. Each email in a real sequence needs its own reason to exist.' },
+    ],
+    outcomes: [
+      { label: 'Inbox placement', body: 'Whether the sequence is actually landing in the inbox rather than spam — checked directly, not assumed from open rate alone.' },
+      { label: 'Reply rate by segment', body: 'Which part of the list and which email angle is getting responses, so the next sequence spends less time on what does not work.' },
+      { label: 'Meetings booked', body: 'The number that actually matters, tracked separately from replies — a reply that never becomes a meeting is not yet a result.' },
+      { label: 'Domain reputation held', body: 'Sending practices that keep your domain healthy for outreach next quarter, not just this campaign.' },
+    ],
+  },
+
+  'social-media-management': {
+    expandedSummary: [
+      'An abandoned social profile is worse than no profile — a prospect who finds a business page with no post in eight months reasonably wonders if the business is still operating. Organic social is not usually a lead-volume channel on its own; its job is making a business look active and credible to the people who check before they call, and building familiarity over months that pays off when they are ready to buy.',
+      'Consistency matters more than production value here. A steady cadence of honest, real-business content — a finished job, a team photo, a quick tip — outperforms a burst of polished posts followed by silence. We plan a calendar around what your business actually has to show, rather than inventing content that does not reflect the work.',
+    ],
+    process: [
+      { phase: 'Week 1', body: 'Audit existing profiles, agree which platforms actually matter for your customers, and set the content pillars and posting cadence.' },
+      { phase: 'Weeks 2–3', body: 'First content calendar built and reviewed with you, first batch of posts produced from your own material.' },
+      { phase: 'Monthly', body: 'Consistent publishing on schedule, plus a content calendar reviewed with you in batches ahead of time.' },
+      { phase: 'Ongoing', body: 'Monthly reporting on reach, engagement and profile growth, with the content mix adjusted based on what actually performs.' },
+    ],
+    commonMistakes: [
+      { title: 'Posting in bursts, then going quiet', body: 'A month of daily posts followed by three months of silence reads worse than infrequent but consistent posting.' },
+      { title: 'Generic stock content', body: 'Stock photos and borrowed quotes do less for trust than an honest photo of your actual team or a finished job.' },
+      { title: 'No plan for comments and DMs', body: 'A profile that posts but never responds to a comment or message looks unattended, which undercuts the credibility the posting was meant to build.' },
+    ],
+    outcomes: [
+      { label: 'Consistent posting cadence', body: 'A profile that looks active to anyone checking, on a schedule that does not lapse.' },
+      { label: 'Engagement trending up', body: 'Comments, shares and saves growing as the content finds what your specific audience responds to.' },
+      { label: 'Profile growth', body: 'Followers and reach expanding over months — the slow-building asset organic social actually is.' },
+      { label: 'Genuine leads routed fast', body: 'Real inquiries that come through comments or DMs reaching you promptly, not sitting unanswered in a queue.' },
+    ],
+  },
 };

@@ -1,0 +1,107 @@
+name: Roadmap content (manual)
+
+# Works through content-queue/roadmap/queue.json — the dated content
+# calendar imported from the client's SEO roadmap spreadsheet via
+# scripts/import-roadmap-csv.mjs.
+#
+# The AUTOMATIC daily run of this same queue lives on Vercel now, not here —
+# see src/app/api/cron/roadmap/route.ts (triggered by the `crons` entry in
+# vercel.json). That path needs no GitHub Actions secrets at all: it reuses
+# whatever GITHUB_API_TOKEN / GEMINI_API_KEY / RESEND_API_KEY are already
+# set as Vercel env vars for /admin and the Studio "Generate with AI" button.
+#
+# This workflow is kept only as a manual escape hatch — a full-build-gated,
+# `--all-due` capable run you can trigger by hand from the Actions tab if you
+# ever need one (e.g. a large catch-up, or debugging). It needs its OWN
+# copies of GEMINI_API_KEY and RESEND_API_KEY as repository secrets
+# (Settings → Secrets and variables → Actions) to work — see README §16 for
+# why the daily path avoids that requirement.
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Max rows to process this run"
+        default: "4"
+      all_due:
+        description: "Process every due row in one run, ignoring the limit (use for catch-up)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+# Shares a lane with the other content workflow — both write
+# posts-index.json and neither should race the other.
+concurrency:
+  group: daily-content
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Generate today's due roadmap content
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          if [ "${{ inputs.all_due }}" = "true" ]; then
+            node scripts/run-roadmap-batch.mjs --all-due
+          else
+            node scripts/run-roadmap-batch.mjs --limit "${{ inputs.limit || '4' }}"
+          fi
+
+      - name: Generate featured images for new posts
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          node scripts/derive-post-images.mjs
+          node scripts/generate-blog-images.mjs
+
+      - name: Check whether anything was generated
+        id: check
+        run: |
+          COUNT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('content-queue/roadmap/.last-run.json','utf8')).generated.length)")
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+
+      - name: Validate with a full build
+        if: steps.check.outputs.count != '0'
+        run: npm run build
+
+      - name: Open pull request for review
+        if: steps.check.outputs.count != '0'
+        id: cpr
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "Content: roadmap batch for $(date +%Y-%m-%d)"
+          branch: content/roadmap-${{ github.run_number }}
+          title: "Roadmap content batch — ${{ steps.check.outputs.count }} page(s) (gemini)"
+          body: |
+            Generated automatically by **Roadmap content (daily)**, from
+            `content-queue/roadmap/queue.json`.
+
+            - **Provider:** gemini (forced)
+            - **Run log:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            Review each item at `/admin/review` — merging this PR (or
+            **Approve & publish** there) deploys it.
+          labels: automated-content
+          base: ${{ github.ref_name }}
+          delete-branch: true
+
+      - name: Email production@builtrightdigital.com
+        if: always()
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          node scripts/send-roadmap-notification.mjs --pr-url "${{ steps.cpr.outputs.pull-request-url || '' }}"

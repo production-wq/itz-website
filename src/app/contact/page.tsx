@@ -21,6 +21,9 @@ export default function ContactPage() {
         title="Get a free quote"
         intro="Tell us your market and the type of work you want more of. We'll come back with where the demand actually is, what your competitors are doing, and what it costs to win."
         crumbs={[{ label: 'Contact' }]}
+        image="/images/headers/contact.webp"
+        imageAlt="A message, a phone and a map pin — starting a conversation with ITZ Digital"
+        imagePriority
       />
 
       <Section>

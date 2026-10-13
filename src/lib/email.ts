@@ -13,7 +13,7 @@ import 'server-only';
  * Optional env (defaults shown):
  *   EMAIL_FROM            — "ITZ Digital <info@itzdigital.co>"
  *   EMAIL_REPLY_TO        — "info@itzdigital.co"
- *   CONTACT_NOTIFY_TO     — "production@itzontarget.com"
+ *   CONTACT_NOTIFY_TO     — "info@itzontarget.com"
  *
  * The `from` domain (itzdigital.co) must be verified in Resend before anything
  * sends — until it is, requests 403 and this module logs the failure.
@@ -24,7 +24,7 @@ const RESEND_ENDPOINT = 'https://api.resend.com/emails';
 export const emailConfig = {
   from: process.env.EMAIL_FROM || 'ITZ Digital <info@itzdigital.co>',
   replyTo: process.env.EMAIL_REPLY_TO || 'info@itzdigital.co',
-  notifyTo: process.env.CONTACT_NOTIFY_TO || 'production@itzontarget.com',
+  notifyTo: process.env.CONTACT_NOTIFY_TO || 'info@itzontarget.com',
 };
 
 export type SendResult =

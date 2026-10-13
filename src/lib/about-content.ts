@@ -20,7 +20,7 @@ export const about = {
   perks: [
     'You own every account — ads, analytics, domain, website — from day one, and keep them.',
     'Reporting starts with booked calls, forms and appointments; impressions and clicks come second.',
-    'We only work in six industries, so we already know your compliance rules and buying cycle.',
+    'We only work in seven industries, so we already know your compliance rules and buying cycle.',
     'If a channel is wrong for you, we say so before you spend, not after.',
     'Month-to-month agreements. No multi-year lock-in, no exit fee for taking your accounts with you.',
     'You work with the person running the account, not an account manager relaying messages to a media desk.',
@@ -137,7 +137,7 @@ export const about = {
         "Paid ads tell you inside two to four weeks whether the offer and targeting are right, though bidding needs roughly a month of conversion data before it steadies. SEO is slower: expect first ranking movement around 90 days and meaningful lead volume between months four and six. We set a review at 90 days against agreed numbers. If a channel isn't earning its budget by then, we move the money instead of defending the plan.",
     },
     {
-      question: 'Do you work with businesses outside your six industries?',
+      question: 'Do you work with businesses outside your seven industries?',
       answer:
         'Sometimes. If your business runs on local search — a phone that has to get answered, high-value inquiries, a defined service area — the playbook usually transfers. What we will not do is take on a category we have never run and learn it on your budget. Tell us what you do and we will give you an honest answer about whether we are the right fit or whether a specialist in your field would serve you better.',
     },

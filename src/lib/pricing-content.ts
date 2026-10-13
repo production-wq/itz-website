@@ -10,7 +10,7 @@ import type { Faq } from './geo/types';
 export type PricingTier = {
   name: string;
   price: string;
-  /** e.g. "/mo", "/lead" — omitted for one-time prices. */
+  /** e.g. "/mo" — omitted for one-time and custom prices. */
   unit?: string;
   blurb: string;
   featured?: boolean;
@@ -37,7 +37,7 @@ export const pricingGroups: PricingGroup[] = [
       'Scoped as a one-time audit or an ongoing monthly plan. Some clients start with a single audit to see where they stand, then move to a retainer once they know the priorities.',
     serviceHref: '/services/seo',
     tiers: [
-      { name: 'One-time audit', price: '$750–$1,500', blurb: 'A full technical and Google Business Profile audit with a prioritised action list — no ongoing commitment.' },
+      { name: 'One-time audit', price: 'Custom', blurb: 'A full technical and Google Business Profile audit with a prioritised action list — no ongoing commitment.' },
       { name: 'Starter', price: '$600–$1,000', unit: '/mo', blurb: 'Solo practices or newer businesses in a lower-competition market. Covers Google Business Profile optimisation and foundational on-page SEO.' },
       { name: 'Growth', price: '$3,000–$5,500', unit: '/mo', featured: true, blurb: 'Most mid-size businesses in competitive metros. Adds ongoing content, ethical link building, and multi-service or multi-practice-area targeting.' },
       { name: 'Aggressive', price: '$7,000–$12,000+', unit: '/mo', blurb: 'High-competition categories like personal injury law in a major market, or businesses with multiple locations to rank simultaneously.' },
@@ -59,19 +59,6 @@ export const pricingGroups: PricingGroup[] = [
     ],
   },
   {
-    slug: 'lead-sales',
-    eyebrow: 'Lead sales',
-    title: 'Buy exclusive, pre-qualified leads by practice area',
-    intro:
-      'Rather than managing your own ad account, you can buy exclusive leads outright — priced per qualified lead, not per click. Pricing tracks case value and local competition.',
-    serviceHref: '/services/lead-generation',
-    tiers: [
-      { name: 'Family law', price: '$20–$45', unit: '/lead', blurb: 'Lower per-lead cost, but higher volume needed since not every lead becomes a signed case.' },
-      { name: 'Personal injury', price: '$60–$90', unit: '/lead', featured: true, blurb: 'The highest per-lead cost in legal marketing, driven by high case values and heavy competition.' },
-      { name: 'Criminal defense', price: '$35–$65', unit: '/lead', blurb: 'Mid-range pricing with strong local variation depending on court density in your area.' },
-    ],
-  },
-  {
     slug: 'meta-ads',
     eyebrow: 'Meta Ads',
     title: 'Facebook & Instagram campaign management',
@@ -79,9 +66,8 @@ export const pricingGroups: PricingGroup[] = [
     note: 'Ad spend is billed separately, direct to Meta.',
     serviceHref: '/services/meta-ads',
     tiers: [
-      { name: 'One-time campaign', price: '$600–$1,000', blurb: 'A single seasonal or promotional campaign, built and launched as a one-off project.' },
-      { name: 'Monthly plan', price: '$450–$750', unit: '/mo', featured: true, blurb: 'Ongoing creative refresh and audience testing across Facebook and Instagram.' },
-      { name: 'Multi-location', price: '$2,200+', unit: '/mo', blurb: 'Coordinated social campaigns across multiple locations under one account.' },
+      { name: 'Monthly plan', price: '$1,500–$2,500', unit: '/mo', featured: true, blurb: 'Ongoing creative refresh and audience testing across Facebook and Instagram.' },
+      { name: 'Multi-location', price: 'Custom', blurb: 'Coordinated social campaigns across multiple locations under one account.' },
     ],
   },
   {

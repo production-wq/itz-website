@@ -69,7 +69,7 @@ export default function PricingPage() {
       <BlogTeaser
         eyebrow="From the blog"
         title="More on how pricing works"
-        intro="Per-lead costs by practice area, what drives an SEO retainer up or down, and how to budget a paid campaign."
+        intro="What drives an SEO retainer up or down, and how to budget a paid campaign."
         tone={pricingGroups.length % 2 === 0 ? 'muted' : 'white'}
       />
 

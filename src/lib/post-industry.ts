@@ -47,7 +47,10 @@ const NICHES: [niche: string, vertical: string, pattern: RegExp][] = [
 
   ['auto-detailing', 'automotive', /-(detailing|car-wash)-/],
   ['collision-repair', 'automotive', /-collision-/],
-  ['auto-repair', 'automotive', /-(auto-repair|auto-glass|mechanics?|tire|windshields?|dealers?|dealerships?)-/],
+  ['auto-glass', 'automotive', /-(auto-glass|windshields?)-/],
+  ['tire', 'automotive', /-tire-/],
+  ['dealerships', 'automotive', /-(dealers?|dealerships?)-/],
+  ['auto-repair', 'automotive', /-(auto-repair|mechanics?)-/],
   ['automotive', 'automotive', /-automotive-/],
 
   ['hvac', 'home-services', /-hvac-/],

@@ -561,8 +561,7 @@
     "date": "2026-09-24T00:00:00.000Z",
     "excerpt": "Understand the true financial cost of mechanic website services, avoid agency traps, and calculate your return on investment to protect your shop's bottom line.",
     "categories": [
-      "Website Services",
-      "Web Design"
+      "Website Services"
     ],
     "tags": [
       "mechanic website",
@@ -571,13 +570,13 @@
       "auto shop seo",
       "customer acquisition"
     ],
-    "seoTitle": "Real Cost of Mechanic Website Services Breakdown",
-    "seoDescription": "Understand the true cost of mechanic website services. Compare upfront builds, monthly retainers, hidden fees, and customer acquisition ROI for auto shops.",
+    "seoTitle": "Mechanic Website Cost: Real Pricing Breakdown",
+    "seoDescription": "How much does a mechanic website cost? Compare renting vs owning, see build and monthly costs, and learn how many repair orders it takes to pay it back.",
     "readingTime": 7,
     "faqs": [
       {
         "question": "How much does a professional mechanic website typically cost?",
-        "answer": "A professional mechanic website ranges from low monthly platform rentals to several thousand dollars for a fully customized, owned build. Basic template services typically charge ongoing monthly subscriptions that add up over time. In contrast, custom builds require higher upfront capital but eliminate recurring software licensing and give your shop complete asset ownership."
+        "answer": "A mechanic website costs $100 to $400 per month on a rented platform, $3,000 to $10,000 one time for a custom build you own, or $500 to $1,500 per month for a hybrid retainer that includes ongoing optimization. Rentals add up over time, while a custom build costs more upfront but removes recurring licensing fees and gives your shop full ownership."
       },
       {
         "question": "Should an auto repair shop rent or own its website?",
@@ -589,7 +588,7 @@
       },
       {
         "question": "What ongoing fees should an auto shop expect after launch?",
-        "answer": "After launch, ongoing costs generally include managed WordPress hosting, domain registration, SSL certificates, software security updates, and automated off-site backups. If you invest in ongoing search optimization or content additions, you will pay a monthly management retainer. Avoid vendors that charge recurring licensing fees simply to keep your design live."
+        "answer": "Expect about $30 to $100 per month for managed hosting, domain registration, SSL, security updates and backups. If you add ongoing search optimization or content, a hybrid retainer typically runs $500 to $1,500 per month. Avoid vendors that charge recurring licensing fees simply to keep your design live."
       }
     ]
   },

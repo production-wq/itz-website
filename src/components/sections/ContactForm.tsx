@@ -67,6 +67,7 @@ export function ContactForm() {
 
   return (
     <form
+      id="itz-contact-form"
       onSubmit={onSubmit}
       noValidate={false}
       className="relative overflow-hidden rounded-3xl border border-navy-100 bg-white p-7 shadow-card lg:p-10"
@@ -79,7 +80,7 @@ export function ContactForm() {
       {/* Honeypot — bots fill this, humans never see it. */}
       <div aria-hidden="true" className="absolute left-[-9999px]">
         <label htmlFor="company-website">Leave this field empty</label>
-        <input id="company-website" name="companyWebsite" type="text" tabIndex={-1} autoComplete="off" />
+        <input id="company-website" name="companyWebsite" type="text" tabIndex={-1} autoComplete="off" data-cr-no-capture />
       </div>
 
       <div className="mt-8 grid gap-5 sm:grid-cols-2">

@@ -152,7 +152,7 @@ export function NewBatchForm({
   const busy = run.phase === 'submitting' || run.phase === 'running';
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form onSubmit={handleSubmit} className="space-y-8" data-cr-no-capture>
       <div className="flex gap-2">
         <button
           type="button"

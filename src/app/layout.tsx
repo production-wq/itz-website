@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Caveat, Figtree } from 'next/font/google';
 
 import './globals.css';
+import { CallRailTracking } from '@/components/CallRailTracking';
 import { Footer } from '@/components/layout/Footer';
 import { ScrollFx } from '@/components/motion/ScrollFx';
 import { Header } from '@/components/layout/Header';
@@ -127,6 +128,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </main>
         <Footer />
         <ScrollFx />
+        <CallRailTracking />
 
         <script
           type="application/ld+json"

@@ -126,7 +126,7 @@ export default async function ReviewBatchPage({
           ) : null}
 
           <div className="mt-10 flex flex-wrap items-center gap-3 border-t border-white/10 pt-8">
-            <form action={approveAction}>
+            <form action={approveAction} data-cr-no-capture>
               <button
                 type="submit"
                 className="flex items-center gap-2 rounded-lg bg-emerald-500 px-6 py-2.5 font-bold text-white transition-colors hover:bg-emerald-400"
@@ -139,7 +139,7 @@ export default async function ReviewBatchPage({
               <summary className="flex cursor-pointer list-none items-center gap-2 rounded-lg border border-white/15 px-6 py-2.5 font-semibold text-navy-100 hover:bg-white/5">
                 <XCircle className="h-4 w-4" aria-hidden="true" /> Send back
               </summary>
-              <form action={rejectAction} className="mt-3 flex max-w-md items-start gap-2">
+              <form action={rejectAction} className="mt-3 flex max-w-md items-start gap-2" data-cr-no-capture>
                 <textarea
                   name="reason"
                   rows={2}

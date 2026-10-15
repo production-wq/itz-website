@@ -72,6 +72,8 @@ export function ContactForm() {
       noValidate={false}
       className="relative overflow-hidden rounded-3xl border border-navy-100 bg-white p-7 shadow-card lg:p-10"
     >
+      {/* CallRail includes this marker in its Zoho note for the ITZ business-unit rule. */}
+      <input type="hidden" name="itz_lead_origin" value="ITZ_DIGITAL_WEBSITE_CALLRAIL" />
       <h2 className="text-display-sm text-navy-700">Request a free audit</h2>
       <p className="mt-3 text-ink-600">
         No obligation, and you keep the findings either way.

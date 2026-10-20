@@ -1,10 +1,29 @@
 'use client';
 
-import { useId, useState } from 'react';
+import { Fragment, useId, useState, type ReactNode } from 'react';
 import { Minus, Plus } from 'lucide-react';
 
 import { cn } from '@/lib/cn';
 import type { Faq } from '@/lib/geo/types';
+
+const ANCHOR = /<a href="([^"]+)">([^<]+)<\/a>/g;
+
+/** Renders plain answer text, turning simple <a href="…">anchor</a> markup into real links. */
+function AnswerText({ text }: { text: string }) {
+  const parts: ReactNode[] = [];
+  let last = 0;
+  for (const m of text.matchAll(ANCHOR)) {
+    parts.push(text.slice(last, m.index));
+    parts.push(
+      <a key={m.index} href={m[1]} className="font-semibold text-blue-600 underline underline-offset-2 hover:text-blue-700">
+        {m[2]}
+      </a>,
+    );
+    last = m.index + m[0].length;
+  }
+  parts.push(text.slice(last));
+  return <>{parts.map((part, i) => <Fragment key={i}>{part}</Fragment>)}</>;
+}
 
 /**
  * Accessible FAQ accordion.
@@ -92,7 +111,7 @@ export function FaqAccordion({
               hidden={!isOpen}
               className="px-6 pb-6 pt-0"
             >
-              <p className="max-w-prose leading-relaxed text-ink-600">{faq.answer}</p>
+              <p className="max-w-prose leading-relaxed text-ink-600"><AnswerText text={faq.answer} /></p>
             </div>
           </div>
         );

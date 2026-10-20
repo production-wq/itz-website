@@ -96,6 +96,11 @@ export function PostPage({ slug, post: providedPost }: { slug: string; post?: Po
             By {author.name}
           </Link>
           {post.date ? <time dateTime={post.date}>{formatDate(post.date)}</time> : null}
+          {post.updated ? (
+            <span>
+              Updated <time dateTime={post.updated}>{formatDate(post.updated)}</time>
+            </span>
+          ) : null}
           <span className="inline-flex items-center gap-1.5">
             <Clock className="h-4 w-4" aria-hidden="true" />
             {post.readingTime} min read

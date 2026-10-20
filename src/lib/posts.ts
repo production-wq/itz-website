@@ -46,6 +46,8 @@ export type Post = PostSummary & {
    * headline). Used to keep the H1 identical to the `<title>` tag.
    */
   h1?: string;
+  /** ISO date of the last content refresh; shown as "Updated" and used for dateModified. */
+  updated?: string;
 };
 
 /** Where post images are served from. Set to a CDN or the legacy WP host. */

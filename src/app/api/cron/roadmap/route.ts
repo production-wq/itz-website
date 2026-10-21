@@ -57,6 +57,14 @@ const QUEUE_PATH = 'content-queue/roadmap/queue.json';
 const POSTS_INDEX_PATH = 'src/content/posts-index.json';
 const POST_IMAGES_PATH = 'src/content/post-images.json';
 
+const GITHUB_TOKEN_HINT =
+  '\nGitHub rejected GITHUB_API_TOKEN (401). Rotate it in Vercel → Settings → Environment Variables (production), then redeploy.';
+
+/** GitHub answers 401 when the token is expired or revoked. */
+function githubTokenRejected(error: string): boolean {
+  return /\b401\b/.test(error) && /Bad credentials/i.test(error);
+}
+
 /**
  * Tells Slack when a run was due but nothing was published, so a silent
  * all-failed week still shows up in the channel instead of looking like the
@@ -103,7 +111,9 @@ export async function GET(request: Request) {
     // Slack message. Tell the channel, then fail the cron run loudly.
     const error = describeError(err);
     console.error(`[roadmap-cron] run crashed: ${error}`);
-    await sendSlackMessage(`*ITZ Digital roadmap content — ${new Date().toISOString().slice(0, 10)}*\nRun crashed before publishing: ${error}`);
+    await sendSlackMessage(
+      `*ITZ Digital roadmap content — ${new Date().toISOString().slice(0, 10)}*\nRun crashed before publishing: ${error}${githubTokenRejected(error) ? GITHUB_TOKEN_HINT : ''}`,
+    );
     return NextResponse.json({ ok: false, error }, { status: 500 });
   }
 }

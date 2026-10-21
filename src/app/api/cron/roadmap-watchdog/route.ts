@@ -31,6 +31,21 @@ function mondayOnOrBefore(day: string): string {
  * `Authorization: Bearer $CRON_SECRET` on cron-triggered requests.
  */
 export async function GET(request: Request) {
+  try {
+    return await runWatchdog(request);
+  } catch (err) {
+    // The watchdog reads GitHub too, so a rejected token would otherwise fail
+    // silently here as well.
+    const error = err instanceof Error ? err.message : String(err);
+    const today = new Date().toISOString().slice(0, 10);
+    const hint = /\b401\b/.test(error) && /Bad credentials/i.test(error)
+      ? '\nGitHub rejected GITHUB_API_TOKEN (401). Rotate it in Vercel, then redeploy.'
+      : '';
+    return alert(today, `watchdog could not check the queue: ${error}${hint}`);
+  }
+}
+
+async function runWatchdog(request: Request) {
   const cronSecret = process.env.CRON_SECRET;
   if (!cronSecret) {
     return NextResponse.json({ error: 'CRON_SECRET is not set. See .env.example.' }, { status: 503 });

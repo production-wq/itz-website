@@ -49,6 +49,9 @@ export const runtime = 'nodejs';
 export const maxDuration = 300;
 
 const WEEKLY_LIMIT = 1;
+// Candidates generated per run. Only WEEKLY_LIMIT of them must succeed, so one
+// bad head-of-queue row (validation, Gemini error) no longer blocks the week.
+const CANDIDATES_PER_RUN = 3;
 const SITE_ORIGIN = 'https://itzdigital.co';
 const QUEUE_PATH = 'content-queue/roadmap/queue.json';
 const POSTS_INDEX_PATH = 'src/content/posts-index.json';
@@ -92,6 +95,20 @@ async function notifyNothingPublished(today: string, failed: { row: QueueRow; er
  * triggerable by anyone who finds the URL.
  */
 export async function GET(request: Request) {
+  try {
+    return await runRoadmapCron(request);
+  } catch (err) {
+    // Anything unexpected (bad queue JSON, a GitHub outage, a Gemini client
+    // error outside the per-row try/catch) used to vanish into a 500 with no
+    // Slack message. Tell the channel, then fail the cron run loudly.
+    const error = describeError(err);
+    console.error(`[roadmap-cron] run crashed: ${error}`);
+    await sendSlackMessage(`*ITZ Digital roadmap content — ${new Date().toISOString().slice(0, 10)}*\nRun crashed before publishing: ${error}`);
+    return NextResponse.json({ ok: false, error }, { status: 500 });
+  }
+}
+
+async function runRoadmapCron(request: Request) {
   const cronSecret = process.env.CRON_SECRET;
   if (!cronSecret) {
     return NextResponse.json({ error: 'CRON_SECRET is not set. See .env.example.' }, { status: 503 });
@@ -123,10 +140,21 @@ export async function GET(request: Request) {
   const due = queue
     .filter((r) => r.status === 'pending' && r.launchDate <= today)
     .sort((a, b) => a.launchDate.localeCompare(b.launchDate))
-    .slice(0, WEEKLY_LIMIT);
+    .slice(0, CANDIDATES_PER_RUN);
 
   if (due.length === 0) {
     return NextResponse.json({ ok: true, message: `Nothing due as of ${today}.` });
+  }
+
+  // Posted before any slow work, so a run that is killed by the function
+  // timeout still leaves a trace in the channel (started, no result).
+  if (isSlackConfigured()) {
+    await sendSlackMessage(
+      [
+        `*ITZ Digital roadmap content — ${today}*`,
+        `Run started: trying ${due.length} due row(s), publishing up to ${WEEKLY_LIMIT}.`,
+      ].join('\n'),
+    );
   }
 
   const site = readSite(process.cwd());
@@ -231,6 +259,7 @@ export async function GET(request: Request) {
   // not needing the Git Data API's multi-file-atomic-commit machinery here.
   const ok: typeof generatedOk = [];
   for (const r of generatedOk) {
+    if (ok.length >= WEEKLY_LIMIT) break;
     try {
       await putFile({
         path: `src/content/posts/${r.post!.slug}.json`,

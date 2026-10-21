@@ -354,12 +354,29 @@ async function runRoadmapCron(request: Request) {
     sha: queueFileNow?.sha,
   });
 
+  // ── Deploy ────────────────────────────────────────────────────────────
+  // Commits made through the GitHub API don't always trigger a Vercel build
+  // (the 2026-10-21 run's commit never deployed), so the new pages would
+  // stay off the live site. A Deploy Hook rebuilds the branch on demand.
+  let deployTriggered = false;
+  const deployHook = process.env.VERCEL_DEPLOY_HOOK_URL;
+  if (deployHook) {
+    try {
+      const res = await fetch(deployHook, { method: 'POST', signal: AbortSignal.timeout(10_000) });
+      deployTriggered = res.ok;
+      if (!res.ok) console.error(`[roadmap-cron] deploy hook responded ${res.status}`);
+    } catch (err) {
+      console.error(`[roadmap-cron] deploy hook failed: ${describeError(err)}`);
+    }
+  }
+
   // ── Notify ────────────────────────────────────────────────────────────
   if (isSlackConfigured()) {
     const lines = [
       `*ITZ Digital roadmap content — ${today}*`,
       `Published ${ok.length} page(s) directly to the live site:`,
       ...ok.map((r) => `• <${SITE_ORIGIN}/${r.post!.slug}|${r.post!.title}>`),
+      ...(deployHook && !deployTriggered ? ['', ':warning: Vercel deploy hook failed; the pages may not be live yet.'] : []),
       ...(failed.length
         ? ['', `Failed (${failed.length}):`, ...failed.map((f) => `• ${f.row.title} — ${f.error}`)]
         : []),

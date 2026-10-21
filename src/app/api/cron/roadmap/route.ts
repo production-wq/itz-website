@@ -55,6 +55,22 @@ const POSTS_INDEX_PATH = 'src/content/posts-index.json';
 const POST_IMAGES_PATH = 'src/content/post-images.json';
 
 /**
+ * Tells Slack when a run was due but nothing was published, so a silent
+ * all-failed week still shows up in the channel instead of looking like the
+ * cron never ran.
+ */
+async function notifyNothingPublished(today: string, failed: { row: QueueRow; error: string }[]) {
+  if (!isSlackConfigured()) return;
+  await sendSlackMessage(
+    [
+      `*ITZ Digital roadmap content — ${today}*`,
+      `Nothing was published this run. Failed (${failed.length}):`,
+      ...failed.map((f) => `• ${f.row.title} — ${f.error}`),
+    ].join('\n'),
+  );
+}
+
+/**
  * Vercel Cron entry point for the client's dated SEO content roadmap (see
  * README §16). Runs entirely on Vercel — no GitHub Actions secrets required
  * — because everything it needs (GITHUB_API_TOKEN, GEMINI_API_KEY) is
@@ -125,7 +141,7 @@ export async function GET(request: Request) {
 
   // ── Generate concurrently (the slow part: one Gemini text + one Gemini
   // image call per row) — failures here don't touch GitHub at all, so a
-  // failed row is simply retried automatically on tomorrow's run.
+  // failed row is simply retried automatically on next week's run.
   const results = await Promise.all(
     due.map(async (row) => {
       try {
@@ -198,6 +214,7 @@ export async function GET(request: Request) {
   }[];
 
   if (generatedOk.length === 0) {
+    await notifyNothingPublished(today, failed);
     return NextResponse.json({
       ok: true,
       generated: [],
@@ -237,6 +254,7 @@ export async function GET(request: Request) {
   }
 
   if (ok.length === 0) {
+    await notifyNothingPublished(today, failed);
     return NextResponse.json({
       ok: true,
       generated: [],

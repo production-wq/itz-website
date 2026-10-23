@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/roadmap",
       "schedule": "0 13 * * 1"
+    },
+    {
+      "path": "/api/cron/roadmap-watchdog",
+      "schedule": "0 18 * * 1"
     }
   ]
 }

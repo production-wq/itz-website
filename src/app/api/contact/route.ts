@@ -1,92 +1,81 @@
 import { NextResponse } from 'next/server';
 
-import { emailConfig, isEmailConfigured, sendEmail } from '@/lib/email';
+import { emailConfig, sendEmail } from '@/lib/email';
 import { confirmationEmail, notificationEmail, type ContactSubmission } from '@/lib/email-templates';
 
-/**
- * GET /api/contact — diagnostic. No secrets returned.
- *
- *   /api/contact             → is the Resend key present on this deployment?
- *   /api/contact?selftest=1  → actually send one test email to CONTACT_NOTIFY_TO
- *                              and return the raw provider result (403/422 detail
- *                              included). Only ever mails the fixed internal
- *                              address, so it is not a spam vector.
- *
- * Safe to leave in; remove once email is confirmed working if you prefer.
- */
-export async function GET(request: Request) {
-  const selftest = new URL(request.url).searchParams.get('selftest');
-  const base = {
-    resendConfigured: isEmailConfigured(),
-    from: emailConfig.from,
-    notifyTo: emailConfig.notifyTo,
-    assetBase: process.env.EMAIL_ASSET_BASE || '(default: site.url)',
-    node: process.version,
-  };
+import { passesRecaptcha, validateContact } from '@/lib/contact-validation';
 
-  if (!selftest) return NextResponse.json(base);
-
-  if (!isEmailConfigured()) {
-    return NextResponse.json({ ...base, selftest: 'aborted — RESEND_API_KEY not set' }, { status: 200 });
+// All side effects are behind POST validation; no public email self-test endpoint.
+export async function POST(request: Request) {
+  const origin = request.headers.get('origin');
+  const allowedOrigins = ['https://itzdigital.co', 'https://www.itzdigital.co'];
+  if (process.env.NODE_ENV !== 'production') allowedOrigins.push(new URL(request.url).origin);
+  if (!origin || !allowedOrigins.includes(origin)) {
+    return NextResponse.json({ error: 'Please submit the form from our website.' }, { status: 403 });
+  }
+  if (!request.headers.get('content-type')?.includes('application/json')) {
+    return NextResponse.json({ error: 'Invalid request format.' }, { status: 415 });
   }
 
-  const result = await sendEmail({
-    to: emailConfig.notifyTo,
-    subject: `ITZ Digital email self-test — ${new Date().toISOString()}`,
-    html: `<p>This is a self-test from <strong>/api/contact?selftest=1</strong>. If you can read this, Resend is wired correctly.</p>`,
-    text: 'Self-test from /api/contact?selftest=1. Resend is wired correctly.',
-  });
-
-  return NextResponse.json({ ...base, selftest: result });
-}
-
-/*
- * Contact endpoint.
- *
- * Validates the submission, then sends two emails via Resend (see src/lib/email.ts):
- *   1. an internal notification to CONTACT_NOTIFY_TO (info@itzontarget.com)
- *      with every field, reply-to set to the enquirer so a reply goes straight
- *      back to them;
- *   2. a branded "thanks, we've got it" confirmation to the enquirer.
- *
- * Email delivery never blocks the response: if the provider is misconfigured or
- * down, the failure is logged and the submission still returns { ok: true } so
- * the lead is not lost and the visitor is not shown an error for something that
- * did, in fact, arrive.
- */
-export async function POST(request: Request) {
   let body: Record<string, unknown>;
-
+  const reader = request.body?.getReader();
+  if (!reader) return NextResponse.json({ error: 'Missing request body.' }, { status: 400 });
   try {
-    body = await request.json();
+    const chunks: Uint8Array[] = [];
+    let size = 0;
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > 20_000) {
+        await reader.cancel();
+        return NextResponse.json({ error: 'The submission is too large.' }, { status: 413 });
+      }
+      chunks.push(value);
+    }
+    const parsed: unknown = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('Invalid body');
+    body = parsed as Record<string, unknown>;
   } catch {
     return NextResponse.json({ error: 'Invalid JSON body.' }, { status: 400 });
   }
 
-  // Honeypot: a filled hidden field means a bot. Return 200 so the bot does
-  // not learn it was rejected.
-  if (typeof body.companyWebsite === 'string' && body.companyWebsite.trim() !== '') {
-    return NextResponse.json({ ok: true });
+  if (body.companyWebsite) {
+    // A honeypot hit must not trigger browser-side CallRail capture either.
+    return NextResponse.json({ ok: true, accepted: false });
+  }
+  const error = validateContact(body);
+  if (error) return NextResponse.json({ error }, { status: 422 });
+
+  const secret = process.env.RECAPTCHA_SECRET_KEY;
+  const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+  if (secret || siteKey || process.env.VERCEL_ENV === 'production') {
+    if (!secret || !siteKey) {
+      console.error('[contact] reCAPTCHA configuration incomplete');
+      return NextResponse.json({ error: 'Verification is temporarily unavailable. Please call us.' }, { status: 503 });
+    }
+    if (typeof body.recaptchaToken !== 'string' || !body.recaptchaToken || body.recaptchaToken.length > 4096) {
+      return NextResponse.json({ error: 'Please complete verification and try again.' }, { status: 403 });
+    }
+    try {
+      const verification = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+        method: 'POST',
+        body: new URLSearchParams({ secret, response: body.recaptchaToken }),
+        signal: AbortSignal.timeout(8000),
+        cache: 'no-store',
+      });
+      if (!verification.ok) throw new Error('Verification unavailable');
+      if (!passesRecaptcha(await verification.json())) {
+        return NextResponse.json({ error: 'We could not verify this submission. Please try again or call us.' }, { status: 403 });
+      }
+    } catch {
+      return NextResponse.json({ error: 'Verification is temporarily unavailable. Please try again.' }, { status: 503 });
+    }
   }
 
   const name = str(body.name);
   const business = str(body.business);
   const email = str(body.email);
-
-  const missing = Object.entries({ name, business, email })
-    .filter(([, v]) => !v)
-    .map(([k]) => k);
-
-  if (missing.length > 0) {
-    return NextResponse.json(
-      { error: `Missing required field(s): ${missing.join(', ')}.` },
-      { status: 422 },
-    );
-  }
-
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return NextResponse.json({ error: 'Please provide a valid email address.' }, { status: 422 });
-  }
 
   const submission: ContactSubmission = {
     name,
@@ -100,7 +89,7 @@ export async function POST(request: Request) {
     receivedAt: new Date().toISOString(),
   };
 
-  console.info('[contact] submission received', { ...submission, message: submission.message.slice(0, 120) });
+  console.info('[contact] verified submission received');
 
   const notify = notificationEmail(submission);
   const confirm = confirmationEmail(submission);
@@ -128,6 +117,7 @@ export async function POST(request: Request) {
   // debugging, no secrets. The form UI ignores everything except `ok`.
   return NextResponse.json({
     ok: true,
+    accepted: true,
     delivery: {
       notification: settledStatus(notifyResult),
       confirmation: settledStatus(confirmResult),

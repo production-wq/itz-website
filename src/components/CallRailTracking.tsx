@@ -6,7 +6,10 @@ import { usePathname } from 'next/navigation';
 
 declare global {
   interface Window {
-    CallTrk?: { swap: (node?: HTMLElement) => void };
+    CallTrk?: {
+      swap: (node?: HTMLElement) => void;
+      captureForm?: (form: HTMLFormElement) => void;
+    };
   }
 }
 

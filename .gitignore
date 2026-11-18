@@ -15,3 +15,4 @@ tsconfig.tsbuildinfo
 # within the same workflow job. content-queue/roadmap/queue.json itself
 # (the actual state) is NOT ignored — that one is committed.
 content-queue/roadmap/.last-run.json
+.env*

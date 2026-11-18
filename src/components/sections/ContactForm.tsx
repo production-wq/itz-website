@@ -1,11 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import Script from 'next/script';
 import { CheckCircle2, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/Button';
 import { industries } from '@/lib/industries';
 import { services } from '@/lib/services';
+import { contactLimits } from '@/lib/contact-validation';
+import { contactCaptchaToken } from '@/lib/recaptcha-client';
 
 type Status = 'idle' | 'submitting' | 'sent' | 'error';
 
@@ -19,9 +22,13 @@ const label = 'mb-2 block text-sm font-bold text-navy-700';
 export function ContactForm() {
   const [status, setStatus] = useState<Status>('idle');
   const [error, setError] = useState<string | null>(null);
+  const submitting = useRef(false);
+  const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (submitting.current) return;
+    submitting.current = true;
     const form = event.currentTarget;
     setStatus('submitting');
     setError(null);
@@ -29,6 +36,7 @@ export function ContactForm() {
     try {
       const payload = Object.fromEntries(new FormData(form));
       payload.pagePath = window.location.pathname;
+      if (siteKey) payload.recaptchaToken = await contactCaptchaToken(siteKey);
 
       const response = await fetch('/api/contact', {
         method: 'POST',
@@ -36,13 +44,23 @@ export function ContactForm() {
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) throw new Error(`Request failed with ${response.status}`);
+      const result = await response.json();
+      if (!response.ok || !result.ok) throw new Error(result.error || 'Please try again.');
+
+      // Automatic capture is disabled on this form. Only accepted submissions
+      // reach CallRail, its Slack notification, and the downstream Zoho workflow.
+      if (result.accepted === true) {
+        try { window.CallTrk?.captureForm?.(form); }
+        catch { console.warn('[contact] CallRail capture unavailable'); }
+      }
 
       form.reset();
       setStatus('sent');
     } catch (err) {
       setStatus('error');
       setError(err instanceof Error ? err.message : 'Something went wrong.');
+    } finally {
+      submitting.current = false;
     }
   }
 
@@ -68,10 +86,12 @@ export function ContactForm() {
   return (
     <form
       id="itz-contact-form"
+      data-cr-no-capture
       onSubmit={onSubmit}
       noValidate={false}
       className="relative overflow-hidden rounded-3xl border border-navy-100 bg-white p-7 shadow-card lg:p-10"
     >
+      {siteKey ? <Script src={`https://www.google.com/recaptcha/api.js?render=${siteKey}`} strategy="afterInteractive" /> : null}
       {/* CallRail includes this marker in its Zoho note for the ITZ business-unit rule. */}
       <input type="hidden" name="itz_lead_origin" value="ITZ_DIGITAL_WEBSITE_CALLRAIL" />
       <h2 className="text-display-sm text-navy-700">Request a free audit</h2>
@@ -90,7 +110,7 @@ export function ContactForm() {
           <label htmlFor="name" className={label}>
             Your name <span className="text-blue-600">*</span>
           </label>
-          <input id="name" name="name" type="text" required autoComplete="name" className={field} />
+          <input id="name" name="name" type="text" required maxLength={contactLimits.name} autoComplete="name" className={field} />
         </div>
 
         <div>
@@ -100,6 +120,7 @@ export function ContactForm() {
           <input
             id="business"
             name="business"
+            maxLength={contactLimits.business}
             type="text"
             required
             autoComplete="organization"
@@ -114,6 +135,7 @@ export function ContactForm() {
           <input
             id="email"
             name="email"
+            maxLength={contactLimits.email}
             type="email"
             required
             autoComplete="email"
@@ -129,6 +151,7 @@ export function ContactForm() {
           <input
             id="phone"
             name="phone"
+            maxLength={contactLimits.phone}
             type="tel"
             autoComplete="tel"
             inputMode="tel"
@@ -172,6 +195,7 @@ export function ContactForm() {
           <textarea
             id="message"
             name="message"
+            maxLength={contactLimits.message}
             rows={5}
             className={`${field} resize-y`}
             placeholder="Which city or metro do you serve, and what type of work do you want more of?"
@@ -200,6 +224,11 @@ export function ContactForm() {
       <p className="mt-4 text-xs leading-relaxed text-ink-500">
         We use your details to respond to this enquiry only. No lists, no resale.
       </p>
+      {siteKey ? <p className="mt-2 text-xs leading-relaxed text-ink-500">
+        This site is protected by reCAPTCHA and the Google{' '}
+        <a href="https://policies.google.com/privacy" className="underline">Privacy Policy</a> and{' '}
+        <a href="https://policies.google.com/terms" className="underline">Terms of Service</a> apply.
+      </p> : null}
     </form>
   );
 }

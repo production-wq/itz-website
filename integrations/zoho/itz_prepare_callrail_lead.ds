@@ -1,0 +1,63 @@
+// Published function: 6155011000057849001
+// Intake workflow: 6155011000057849004
+// Follow-up workflow: 6155011000055600001 (waits for ITZ_WEBSITE_DETAILS_READY)
+// Workflow argument leadId = ${!Leads.id}
+// CallRail native integration creates the original Lead and form Note.
+void automation.itz_prepare_callrail_lead(String leadId)
+{
+lead = zoho.crm.getRecordById("Leads",leadId.toLong());
+if(ifnull(lead.get("Business_Unit"),"") != "") { return; }
+nl = zoho.encryption.urlDecode("%0A");
+query = Map();
+query.put("sort_by","Created_Time");
+query.put("sort_order","desc");
+notes = zoho.crm.getRelatedRecords("Notes","Leads",leadId.toLong(),1,100,query);
+content = "";
+for each note in notes
+{
+  noteText = ifnull(note.get("Note_Content"),"");
+  if(noteText.contains("ITZ_DIGITAL_WEBSITE_CALLRAIL") && noteText.contains("https://itzdigital.co/") && noteText.contains("--- CallRail Form Submission ---"))
+  {
+    content = noteText + nl;
+    break;
+  }
+}
+if(content == "") { return; }
+company = ifnull(content.getSuffix("Business name *:"),"").getPrefix(nl).trim();
+if(company == "") { company = ifnull(lead.get("Company"),"Not provided"); }
+phone = ifnull(lead.get("Phone"),"");
+if(phone == "") { phone = ifnull(content.getSuffix("  Phone:"),"").getPrefix(nl).trim(); }
+if(phone == "") { phone = "Not provided"; }
+contact = (ifnull(lead.get("First_Name"),"") + " " + ifnull(lead.get("Last_Name"),"")).trim();
+email = ifnull(lead.get("Email"),"Not provided");
+source = ifnull(lead.get("Lead_Source"),"");
+if(source == "") { source = ifnull(content.getSuffix(nl + "Source:"),"").getPrefix(nl).trim(); }
+if(source == "") { source = "Not provided"; }
+page = ifnull(content.getSuffix("Form URL:"),"").getPrefix(nl).trim();
+summary = "Lead source: " + source + nl + "Business name: " + company + nl + "Contact: " + contact + nl + "Email: " + email + nl + "Phone: " + phone + nl + "Source page: " + page;
+updates = Map();
+if(ifnull(lead.get("Company"),"") == "" && company != "Not provided") { updates.put("Company",company); }
+updates.put("Description",summary);
+noTriggers = Map();
+noTriggers.put("trigger",List());
+saved = zoho.crm.updateRecord("Leads",leadId.toLong(),updates,noTriggers);
+if(saved.get("id") == null) { info "ITZ enrichment failed"; return; }
+if(ifnull(lead.get("Phone"),"") == "" && phone != "Not provided")
+{
+  phoneUpdate = Map();
+  phoneUpdate.put("Phone",phone);
+  phoneSaved = zoho.crm.updateRecord("Leads",leadId.toLong(),phoneUpdate,noTriggers);
+  // Phone is unique in this CRM. Keep the original submission in Description
+  // even if a duplicate-phone constraint prevents copying it into Phone.
+}
+ready = Map();
+ready.put("Note_Title","ITZ website lead details ready");
+ready.put("Note_Content","ITZ_WEBSITE_DETAILS_READY" + nl + summary);
+ready.put("Parent_Id",leadId);
+ready.put("se_module","Leads");
+triggers = Map();
+triggers.put("trigger",{"workflow"});
+result = zoho.crm.createRecord("Notes",ready,triggers);
+if(result.get("id") == null) { info "ITZ ready note failed"; }
+}
+

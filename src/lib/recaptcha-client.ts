@@ -2,7 +2,7 @@ declare global {
   interface Window {
     grecaptcha?: {
       ready: (callback: () => void) => void;
-      execute: (key: string, options: { action: string }) => Promise<string>;
+      execute: (key: string, options: { action: string }) => PromiseLike<string>;
     };
   }
 }
@@ -17,7 +17,9 @@ export function contactCaptchaToken(siteKey: string): Promise<string> {
       return;
     }
     captcha.ready(() => {
-      captcha.execute(siteKey, { action: 'contact_submit' }).then(resolve, () => reject(new Error('Verification failed. Please try again.')))
+      // Google's thenable does not implement native Promise.finally().
+      Promise.resolve().then(() => captcha.execute(siteKey, { action: 'contact_submit' }))
+        .then(resolve, () => reject(new Error('Verification failed. Please try again.')))
         .finally(() => window.clearTimeout(timeout));
     });
   });
